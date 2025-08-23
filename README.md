@@ -48,6 +48,12 @@ cd dev-browser-maker
 chmod +x make-dev-browser.sh
 ```
 
+### Uninstall
+```bash
+curl -fsSL https://raw.githubusercontent.com/cjflory/dev-browser-maker/main/uninstall.sh | bash
+```
+This removes the installation but keeps any browser apps you've created.
+
 ## Usage
 
 1. Run the script:
