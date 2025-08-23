@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # =============================================================================
-# Dev Browser Maker
+# Dev Browser Maker v1.0.0
 # =============================================================================
 # Creates custom browser app bundles with DNS override rules for development
 #
@@ -10,15 +10,65 @@
 # where you need to test against different environments while maintaining
 # the same hostnames as production.
 #
-# Author: Generated with Claude Code
+# Author: cjflory
+# License: MIT
 # =============================================================================
 
 # Exit immediately if any command fails (makes debugging easier)
 set -e
 
+# Version information
+VERSION="1.0.0"
+
+# Function to display help information
+show_help() {
+    echo "Dev Browser Maker v${VERSION}"
+    echo "Creates custom browser apps with DNS override rules for development"
+    echo ""
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  -h, --help     Show this help message"
+    echo "  -v, --version  Show version information"
+    echo ""
+    echo "Interactive mode (no options):"
+    echo "  The script will guide you through creating a custom browser app"
+    echo "  with DNS rules to redirect hostnames to specific IP addresses."
+    echo ""
+    echo "Examples:"
+    echo "  $0              # Run in interactive mode"
+    echo "  $0 --help       # Show this help"
+    echo "  $0 --version    # Show version"
+}
+
+# Function to display version information
+show_version() {
+    echo "Dev Browser Maker v${VERSION}"
+}
+
+# Parse command line arguments
+case "${1:-}" in
+    -h|--help)
+        show_help
+        exit 0
+        ;;
+    -v|--version)
+        show_version
+        exit 0
+        ;;
+    "")
+        # No arguments - continue with interactive mode
+        ;;
+    *)
+        echo "Error: Unknown option '$1'"
+        echo "Run '$0 --help' for usage information."
+        exit 1
+        ;;
+esac
+
 # Display welcome message
-echo "🚀 Dev Browser Maker"
-echo "===================="
+echo "🚀 Dev Browser Maker v${VERSION}"
+echo "================================"
 echo
 
 # =============================================================================
