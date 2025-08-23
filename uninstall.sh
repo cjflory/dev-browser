@@ -67,12 +67,19 @@ print_warning "This will NOT remove any apps you've created with make-dev-browse
 print_info "Those are stored as .app bundles wherever you created them"
 echo
 
-# Confirmation
-read -p "Continue with uninstall? (y/N): " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    print_info "Uninstall cancelled"
-    exit 0
+# Confirmation - skip if running via pipe
+if [[ -t 0 ]]; then
+    # Interactive terminal
+    read -p "Continue with uninstall? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        print_info "Uninstall cancelled"
+        exit 0
+    fi
+else
+    # Running via pipe (like curl | bash)
+    print_info "Running in non-interactive mode, proceeding with uninstall..."
+    sleep 2
 fi
 
 # Remove installation directory
