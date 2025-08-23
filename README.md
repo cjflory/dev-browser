@@ -33,11 +33,27 @@ This project provides `make-dev-browser.sh` - an interactive script that creates
 - Appears as a native Mac app in Dock/Applications
 - Gets a randomly assigned distinctive icon
 
+## Installation
+
+### One-Command Install (Recommended)
+```bash
+curl -fsSL https://raw.githubusercontent.com/cjflory/dev-browser-maker/main/install.sh | bash
+```
+This downloads the script and icons to `~/.local/share/dev-browser-maker/` and creates a `make-dev-browser` command.
+
+### Manual Install
+```bash
+git clone https://github.com/cjflory/dev-browser-maker.git
+cd dev-browser-maker
+chmod +x make-dev-browser.sh
+```
+
 ## Usage
 
 1. Run the script:
    ```bash
-   ./make-dev-browser.sh
+   make-dev-browser          # If installed via curl
+   ./make-dev-browser.sh     # If cloned manually
    ```
 
 2. Follow the interactive prompts:
