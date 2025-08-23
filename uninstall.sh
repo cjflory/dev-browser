@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # =============================================================================
-# Dev Browser Maker Uninstaller v1.0.0
+# Dev Browser Maker Uninstaller v1.0.1
 # =============================================================================
 # Removes dev-browser-maker installation from the system
 #
