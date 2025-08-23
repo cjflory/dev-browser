@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # =============================================================================
-# Dev Browser Maker Uninstaller v1.0.1
+# Dev Browser Maker Uninstaller v1.0.2
 # =============================================================================
 # Removes dev-browser-maker installation from the system
 #
@@ -13,16 +13,27 @@ set -e
 
 # Colors for output
 RED='\033[0;31m'
-GREEN='\033[0;32m'
+GREEN='\033[0;32m' 
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Helper functions  
-print_info() { echo -e "${BLUE}[INFO] $1${NC}"; }
-print_success() { echo -e "${GREEN}[SUCCESS] $1${NC}"; }
-print_warning() { echo -e "${YELLOW}[WARNING] $1${NC}"; }
-print_error() { echo -e "${RED}[ERROR] $1${NC}"; }
+# Helper functions
+print_info() { 
+    echo -e "${BLUE}[INFO] $1${NC}"
+}
+
+print_success() { 
+    echo -e "${GREEN}[SUCCESS] $1${NC}"
+}
+
+print_warning() { 
+    echo -e "${YELLOW}[WARNING] $1${NC}"
+}
+
+print_error() { 
+    echo -e "${RED}[ERROR] $1${NC}"
+}
 
 # Configuration
 INSTALL_DIR="$HOME/.local/share/dev-browser-maker"
@@ -90,7 +101,7 @@ if [[ -d "$BIN_DIR" ]] && [[ -z "$(ls -A "$BIN_DIR")" ]]; then
     rmdir "$BIN_DIR" 2>/dev/null || true
 fi
 
-# Check if .local/share is empty and can be removed  
+# Check if .local/share is empty and can be removed
 if [[ -d "$HOME/.local/share" ]] && [[ -z "$(ls -A "$HOME/.local/share")" ]]; then
     print_info "Removing empty $HOME/.local/share directory..."
     rmdir "$HOME/.local/share" 2>/dev/null || true
