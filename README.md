@@ -1,6 +1,23 @@
 # Dev Browser Maker
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg)](https://www.apple.com/macos/)
+[![Shell: Bash](https://img.shields.io/badge/Shell-Bash-green.svg)](https://www.gnu.org/software/bash/)
+[![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-red.svg)](https://github.com/cjflory/dev-browser-maker)
+
 A development tool that creates custom browser apps with DNS override rules, allowing developers to redirect specific hostnames to different IP addresses for local development and testing.
+
+## Requirements
+
+- **macOS** (tested on macOS 10.14+)
+- **Bash** 4.0+ (pre-installed on macOS)
+- At least one **Chromium-based browser** installed:
+  - Google Chrome
+  - Brave Browser
+  - Microsoft Edge
+  - Chromium
+  - Opera
+  - Arc Browser
 
 ## Problem
 
@@ -58,6 +75,28 @@ This creates "Dev Environment.app" that:
 - Redirects `example.com` → `192.168.1.100`  
 - Redirects `api.example.com` → `192.168.1.101`
 - Has a unique randomly-selected icon
+
+## Use Cases
+
+**Frontend Development**
+- Test your React/Vue/Angular app against different API environments
+- Switch between local, staging, and production backends
+- Debug cross-origin issues with proper domain names
+
+**Full-Stack Development**
+- Run multiple microservices locally with production-like URLs
+- Test authentication flows with real domain names
+- Validate SSL certificate handling in development
+
+**QA Testing**
+- Create dedicated browser profiles for each test environment
+- Isolate test data and browser state
+- Quick switching between different API versions
+
+**DevOps/Infrastructure**
+- Test load balancer configurations locally
+- Validate DNS changes before going live
+- Debug service discovery issues
 
 ## Features
 
@@ -144,3 +183,48 @@ The script includes 10 unique PNG icons (`icons/icon-01.png` through `icon-10.pn
 - **Static DNS rules** (require app relaunch to change)  
 - **HTTP/HTTPS only** (standard web protocols)
 - **macOS only** (uses macOS-specific app bundle format)
+
+## Troubleshooting
+
+### No Browsers Detected
+```
+❌ Error: No supported browsers found
+```
+**Solution**: Install one of the supported Chromium browsers (Chrome, Brave, Edge, etc.)
+
+### App Won't Launch
+**Issue**: Double-clicking the app does nothing
+**Solutions**:
+- Right-click → Open (bypass Gatekeeper on first run)
+- Check Console app for error messages
+- Verify the browser executable path hasn't changed
+
+### DNS Rules Not Working
+**Issue**: Still seeing original website
+**Solutions**:
+- Clear browser cache/cookies for the domain
+- Check browser developer tools for DNS resolution
+- Verify IP address is correct and accessible
+- Try `curl -H "Host: example.com" http://192.168.1.100` to test
+
+### Permission Denied Errors
+**Issue**: Cannot create app bundle
+**Solutions**:
+- Ensure you have write permissions to the target directory
+- Try running from a different location (e.g., your home directory)
+- Check available disk space
+
+### App Icon Issues
+**Issue**: App shows generic folder icon
+**Solutions**:
+- Restart Finder: `sudo killall Finder`
+- Clear icon cache: `sudo rm -rf /Library/Caches/com.apple.iconservices.store`
+- Verify `icons/` directory contains PNG files
+
+### Getting Help
+```bash
+./make-dev-browser.sh --help  # Show usage information
+./make-dev-browser.sh --version  # Show version
+```
+
+For issues not covered here, please check the [GitHub Issues](https://github.com/cjflory/dev-browser-maker/issues).
