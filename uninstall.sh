@@ -18,18 +18,18 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Helper functions
-print_info() { echo -e "${BLUE}ℹ️  $1${NC}"; }
-print_success() { echo -e "${GREEN}✅ $1${NC}"; }
-print_warning() { echo -e "${YELLOW}⚠️  $1${NC}"; }
-print_error() { echo -e "${RED}❌ $1${NC}"; }
+# Helper functions  
+print_info() { echo -e "${BLUE}[INFO] $1${NC}"; }
+print_success() { echo -e "${GREEN}[SUCCESS] $1${NC}"; }
+print_warning() { echo -e "${YELLOW}[WARNING] $1${NC}"; }
+print_error() { echo -e "${RED}[ERROR] $1${NC}"; }
 
 # Configuration
 INSTALL_DIR="$HOME/.local/share/dev-browser-maker"
 BIN_DIR="$HOME/.local/bin"
 WRAPPER_SCRIPT="$BIN_DIR/make-dev-browser"
 
-echo -e "${BLUE}🗑️  Dev Browser Maker Uninstaller${NC}"
+echo -e "${BLUE}Dev Browser Maker Uninstaller${NC}"
 echo "===================================="
 echo
 
@@ -44,11 +44,11 @@ fi
 # Show what will be removed
 print_info "The following will be removed:"
 if [[ -d "$INSTALL_DIR" ]]; then
-    echo "  📁 Installation directory: $INSTALL_DIR"
+    echo "  Installation directory: $INSTALL_DIR"
     echo "     $(find "$INSTALL_DIR" -type f | wc -l | xargs) files"
 fi
 if [[ -f "$WRAPPER_SCRIPT" ]]; then
-    echo "  🔗 Wrapper script: $WRAPPER_SCRIPT"
+    echo "  Wrapper script: $WRAPPER_SCRIPT"
 fi
 
 echo
