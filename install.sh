@@ -66,7 +66,7 @@ fi
 
 # Download icons
 print_info "Downloading icon assets..."
-for i in {01..10}; do
+for i in 01 02 03 04 05 06 07 08 09 10; do
     if curl -fsSL "$RAW_URL/icons/icon-$i.png" -o "$INSTALL_DIR/icons/icon-$i.png" 2>/dev/null; then
         echo -n "."
     else
