@@ -22,7 +22,7 @@ VERSION="2.1.0"
 
 # Function to display help information
 show_help() {
-    echo "Dev Browser v${VERSION}"
+    echo "🔨 Dev Browser v${VERSION}"
     echo "Creates custom browser apps with DNS override rules for development"
     echo ""
     echo "Usage: $0 <command> [options]"
@@ -184,7 +184,7 @@ list_apps() {
     
     # Check if registry exists
     if [[ ! -f "$registry_path" ]]; then
-        echo "No browser apps found."
+        echo "📭 No browser apps found."
         echo "Create your first app by running: $0 create"
         return 0
     fi
@@ -194,13 +194,13 @@ list_apps() {
     app_count=$(tail -n +2 "$registry_path" | wc -l | tr -d ' ')
     
     if [[ $app_count -eq 0 ]]; then
-        echo "No browser apps found."
+        echo "📭 No browser apps found."
         echo "Create your first app by running: $0 create"
         return 0
     fi
     
     # Header
-    echo "Found $app_count browser app$([ $app_count -ne 1 ] && echo "s"):"
+    echo "📱 Found $app_count browser app$([ $app_count -ne 1 ] && echo "s"):"
     echo
     
     # Read and display each app (skip header line)
@@ -296,7 +296,7 @@ remove_app() {
     echo
     
     # Confirmation
-    read -p "Are you sure you want to remove this app? (y/N): " -n 1 -r
+    read -p "Are you sure you want to remove this app? (y/N): " -n 1 -r || true
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         echo "Removal cancelled."
@@ -320,7 +320,7 @@ remove_app() {
         echo
         echo "Browser profile found: $profile_dir"
         echo "   Contains browser data (bookmarks, passwords, history, etc.)"
-        read -p "Remove profile directory? (y/N): " -n 1 -r
+        read -p "Remove profile directory? (y/N): " -n 1 -r || true
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             if rm -rf "$profile_dir"; then
@@ -337,10 +337,10 @@ remove_app() {
     local temp_registry=$(mktemp)
     
     # Copy header
-    head -n 1 "$registry_path" > "$temp_registry"
+    head -n 1 "$registry_path" > "$temp_registry" || true
     
     # Copy all lines except the one with matching app ID
-    tail -n +2 "$registry_path" | grep -v "^${app_id}"$'\t' >> "$temp_registry"
+    tail -n +2 "$registry_path" | grep -v "^${app_id}"$'\t' >> "$temp_registry" || true
     
     # Replace registry file
     if mv "$temp_registry" "$registry_path"; then
@@ -818,7 +818,7 @@ esac
 # =============================================================================
 
 # Display welcome message for create mode
-echo "Dev Browser v${VERSION} - Create Mode"
+echo "🔨 Dev Browser v${VERSION} - Create Mode"
 echo "====================================="
 echo
 
@@ -827,7 +827,7 @@ select_browser
 echo
 
 # Step 2: Ask where to place browser shortcuts
-echo "Installation directory (default: ~/dev-browsers):"
+echo "📁 Installation directory (default: ~/dev-browsers):"
 read -r -p "   Press Enter for default or specify path: " INSTALL_DIR
 
 # If user just pressed Enter, use the default
@@ -845,7 +845,7 @@ echo
 
 # Step 3: Get app name from user (with validation)
 while true; do
-    read -r -p "App name (e.g., 'Chrome Dev'): " APP_NAME
+    read -r -p "🏷️  App name (e.g., 'Chrome Dev'): " APP_NAME
     
     # Validate the app name to ensure it won't break filesystem operations
     if validate_app_name "$APP_NAME"; then
@@ -860,7 +860,7 @@ done
 # This provides a good default while allowing customization
 SUGGESTED_PROFILE=$(suggest_profile_name "$APP_NAME")
 
-echo "Profile name (suggested: '$SUGGESTED_PROFILE'):"
+echo "👤 Profile name (suggested: '$SUGGESTED_PROFILE'):"
 read -r -p "   Press Enter for suggested or specify custom: " PROFILE_NAME
 
 # If user just pressed Enter, use the suggested name
@@ -870,7 +870,7 @@ fi
 
 # Step 4: Collect DNS mapping rules from user
 echo
-echo "DNS Mapping Rules:"
+echo "🌐 DNS Mapping Rules:"
 echo "Enter hostname to IP mappings (one per line)"
 echo "Format: hostname ip (e.g., example.com 192.168.1.100)"
 echo "Press Enter twice when done:"
@@ -911,7 +911,7 @@ read -r -p "Custom icon path (optional): " ICON_PATH
 
 # Show summary
 echo
-echo "Summary:"
+echo "📋 Summary:"
 echo "   App: $APP_NAME"
 echo "   Location: $INSTALL_DIR/$APP_NAME.app"
 echo "   Profile: chrome-profiles/$PROFILE_NAME"
@@ -937,7 +937,7 @@ MACOS_DIR="$APP_DIR/MacOS"
 RESOURCES_DIR="$APP_DIR/Resources"
 
 echo
-echo "Creating app bundle..."
+echo "📦 Creating app bundle..."
 
 # Create directory structure
 mkdir -p "$MACOS_DIR" "$RESOURCES_DIR"

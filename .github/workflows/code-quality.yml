@@ -68,13 +68,45 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
+        
+    - name: Check for PNG file changes
+      id: check-png
+      run: |
+        if [ "${{ github.event_name }}" = "push" ]; then
+          # For push events, check if any PNG files changed
+          if git diff --name-only HEAD~1 HEAD | grep -q '\.png$'; then
+            echo "png_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "png_changed=false" >> $GITHUB_OUTPUT
+          fi
+        elif [ "${{ github.event_name }}" = "pull_request" ]; then
+          # For PR events, check if any PNG files changed in the PR
+          if git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD | grep -q '\.png$'; then
+            echo "png_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "png_changed=false" >> $GITHUB_OUTPUT
+          fi
+        else
+          # For other events, always run
+          echo "png_changed=true" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Skip PNG analysis
+      if: steps.check-png.outputs.png_changed == 'false'
+      run: |
+        echo "ℹ️  No PNG files changed - skipping PNG analysis"
+        echo "This saves CI resources and speeds up the workflow"
       
     - name: Install image analysis tools
+      if: steps.check-png.outputs.png_changed == 'true'
       run: |
         sudo apt-get update
         sudo apt-get install -y imagemagick pngcheck optipng
         
     - name: Validate PNG files
+      if: steps.check-png.outputs.png_changed == 'true'
       run: |
         echo "🖼️  Analyzing PNG files in icons/ directory..."
         
@@ -240,6 +272,8 @@ jobs:
         
         if [ "${{ needs.png-validation.result }}" = "success" ]; then
           echo "✅ PNG validation passed"
+        elif [ "${{ needs.png-validation.result }}" = "skipped" ]; then
+          echo "⏭️  PNG validation skipped (no PNG changes)"
         else
           echo "❌ PNG validation failed"
         fi
