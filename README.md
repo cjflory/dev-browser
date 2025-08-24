@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg)](https://www.apple.com/macos/)
 [![Shell: Bash](https://img.shields.io/badge/Shell-Bash-green.svg)](https://www.gnu.org/software/bash/)
-[![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-red.svg)](https://github.com/cjflory/dev-browser-maker)
+[![Version: 2.0.0](https://img.shields.io/badge/Version-2.0.0-red.svg)](https://github.com/cjflory/dev-browser)
 
 A development tool that creates custom browser apps with DNS override rules, allowing developers to redirect specific hostnames to different IP addresses for local development and testing.
 
@@ -37,14 +37,14 @@ This project provides `make-dev-browser.sh` - an interactive script that creates
 
 ### One-Command Install (Recommended)
 ```bash
-curl -fsSL https://raw.githubusercontent.com/cjflory/dev-browser-maker/main/dev-browser | bash -s install
+curl -fsSL https://raw.githubusercontent.com/cjflory/dev-browser/main/dev-browser | bash -s install
 ```
-This downloads the script and icons to `~/.local/share/dev-browser-maker/` and creates a `dev-browser` command.
+This downloads the script and icons to `~/.local/share/dev-browser/` and creates a `dev-browser` command.
 
 ### Manual Install
 ```bash
-git clone https://github.com/cjflory/dev-browser-maker.git
-cd dev-browser-maker
+git clone https://github.com/cjflory/dev-browser.git
+cd dev-browser
 chmod +x dev-browser
 ./dev-browser install
 ```
@@ -55,7 +55,7 @@ dev-browser uninstall
 ```
 Or if not in PATH:
 ```bash
-~/.local/share/dev-browser-maker/dev-browser uninstall
+~/.local/share/dev-browser/dev-browser uninstall
 ```
 This removes the installation but keeps any browser apps you've created.
 
@@ -322,4 +322,4 @@ The script includes 10 unique PNG icons (`icons/icon-01.png` through `icon-10.pn
 ./dev-browser version             # Show version
 ```
 
-For issues not covered here, please check the [GitHub Issues](https://github.com/cjflory/dev-browser-maker/issues).
+For issues not covered here, please check the [GitHub Issues](https://github.com/cjflory/dev-browser/issues).

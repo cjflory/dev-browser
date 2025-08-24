@@ -28,8 +28,8 @@ show_help() {
     echo "Usage: $0 <command> [options]"
     echo ""
     echo "Commands:"
-    echo "  install            Install dev-browser-maker from GitHub"
-    echo "  uninstall          Uninstall dev-browser-maker from system"
+    echo "  install            Install dev-browser from GitHub"
+    echo "  uninstall          Uninstall dev-browser from system"
     echo "  create             Create a new browser app (interactive)"
     echo "  list               List all created browser apps"
     echo "  remove <app-id>    Remove a browser app by ID"
@@ -63,9 +63,9 @@ print_warning() { echo -e "${YELLOW}⚠️  $1${NC}"; }
 print_error() { echo -e "${RED}❌ $1${NC}"; }
 
 # Configuration for install/uninstall
-REPO_URL="https://github.com/cjflory/dev-browser-maker"
-RAW_URL="https://raw.githubusercontent.com/cjflory/dev-browser-maker/main"
-INSTALL_DIR_DEFAULT="$HOME/.local/share/dev-browser-maker"
+REPO_URL="https://github.com/cjflory/dev-browser"
+RAW_URL="https://raw.githubusercontent.com/cjflory/dev-browser/main"
+INSTALL_DIR_DEFAULT="$HOME/.local/share/dev-browser"
 BIN_DIR_DEFAULT="$HOME/.local/bin"
 
 # =============================================================================
@@ -81,7 +81,7 @@ BIN_DIR_DEFAULT="$HOME/.local/bin"
 # Parameters: None
 # Returns: Prints the registry file path to stdout
 get_registry_path() {
-    local registry_dir="$HOME/.local/share/dev-browser-maker"
+    local registry_dir="$HOME/.local/share/dev-browser"
     echo "$registry_dir/apps.tsv"
 }
 
@@ -593,7 +593,7 @@ suggest_profile_name() {
 # =============================================================================
 
 # Function: install_subcommand
-# Purpose: Download and install dev-browser-maker from GitHub
+# Purpose: Download and install dev-browser from GitHub
 # Parameters: None
 # Returns: 0 on success, 1 on failure
 install_subcommand() {
@@ -648,7 +648,7 @@ install_subcommand() {
     print_info "Creating wrapper script..."
     cat > "$bin_dir/dev-browser" << 'EOF'
 #!/bin/bash
-exec "$HOME/.local/share/dev-browser-maker/dev-browser" "$@"
+exec "$HOME/.local/share/dev-browser/dev-browser" "$@"
 EOF
     chmod +x "$bin_dir/dev-browser"
     print_success "Created wrapper script"
@@ -673,7 +673,7 @@ EOF
 }
 
 # Function: uninstall_subcommand
-# Purpose: Remove dev-browser-maker installation from system
+# Purpose: Remove dev-browser installation from system
 # Parameters: None  
 # Returns: 0 on success, 1 on failure
 uninstall_subcommand() {
