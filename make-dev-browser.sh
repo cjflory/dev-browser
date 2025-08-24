@@ -30,6 +30,7 @@ show_help() {
     echo "Options:"
     echo "  -h, --help     Show this help message"
     echo "  -v, --version  Show version information"
+    echo "  -l, --list     List all created browser apps"
     echo ""
     echo "Interactive mode (no options):"
     echo "  The script will guide you through creating a custom browser app"
@@ -39,6 +40,7 @@ show_help() {
     echo "  $0              # Run in interactive mode"
     echo "  $0 --help       # Show this help"
     echo "  $0 --version    # Show version"
+    echo "  $0 --list       # List created apps"
 }
 
 # Function to display version information
@@ -46,30 +48,12 @@ show_version() {
     echo "Dev Browser Maker v${VERSION}"
 }
 
-# Parse command line arguments
-case "${1:-}" in
-    -h|--help)
-        show_help
-        exit 0
-        ;;
-    -v|--version)
-        show_version
-        exit 0
-        ;;
-    "")
-        # No arguments - continue with interactive mode
-        ;;
-    *)
-        echo "Error: Unknown option '$1'"
-        echo "Run '$0 --help' for usage information."
-        exit 1
-        ;;
-esac
-
-# Display welcome message
-echo "🚀 Dev Browser Maker v${VERSION}"
-echo "================================"
-echo
+# Display welcome message (only in interactive mode)
+if [[ "${1:-}" == "" ]]; then
+    echo "🚀 Dev Browser Maker v${VERSION}"
+    echo "================================"
+    echo
+fi
 
 # =============================================================================
 # UTILITY FUNCTIONS
@@ -85,7 +69,7 @@ echo
 # Returns: Prints the registry file path to stdout
 get_registry_path() {
     local registry_dir="$HOME/.local/share/dev-browser-maker"
-    echo "$registry_dir/apps.json"
+    echo "$registry_dir/apps.tsv"
 }
 
 # Function: ensure_registry_exists
@@ -101,9 +85,9 @@ ensure_registry_exists() {
     # Create registry directory if it doesn't exist
     mkdir -p "$registry_dir"
     
-    # Create empty registry if it doesn't exist
+    # Create empty registry with header if it doesn't exist
     if [[ ! -f "$registry_path" ]]; then
-        echo '{"apps": []}' > "$registry_path"
+        echo -e "id\tname\tbundle_path\tinstall_dir\tprofile_name\tbrowser_name\tbrowser_exec_path\tdns_rules\tcreated_at\ticon_type" > "$registry_path"
     fi
 }
 
@@ -139,21 +123,18 @@ register_app() {
     local created_at
     created_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
     
-    # Convert DNS_RULES array to JSON format
-    local dns_rules_json="[]"
+    # Convert DNS_RULES array to pipe-separated format
+    local dns_rules_str=""
     if [[ ${#DNS_RULES[@]} -gt 0 ]]; then
-        dns_rules_json="["
-        for i in "${!DNS_RULES[@]}"; do
-            local rule="${DNS_RULES[i]}"
+        for rule in "${DNS_RULES[@]}"; do
             local hostname=$(echo "$rule" | awk '{print $1}')
             local ip=$(echo "$rule" | awk '{print $2}')
             
-            if [[ $i -gt 0 ]]; then
-                dns_rules_json+=","
+            if [[ -n "$dns_rules_str" ]]; then
+                dns_rules_str+="|"
             fi
-            dns_rules_json+="{\"hostname\":\"$hostname\",\"ip\":\"$ip\"}"
+            dns_rules_str+="${hostname}:${ip}"
         done
-        dns_rules_json+="]"
     fi
     
     # Determine icon type
@@ -162,51 +143,110 @@ register_app() {
         icon_type="custom"
     fi
     
-    # Create new app entry JSON
-    local new_app_json=$(cat << EOF
-{
-  "id": "$app_id",
-  "name": "$APP_NAME",
-  "bundle_path": "$APP_BUNDLE",
-  "install_dir": "$INSTALL_DIR",
-  "profile_name": "$PROFILE_NAME", 
-  "browser_name": "$BROWSER_NAME",
-  "browser_exec_path": "$BROWSER_EXEC_PATH",
-  "dns_rules": $dns_rules_json,
-  "created_at": "$created_at",
-  "icon_type": "$icon_type"
+    # Escape tab characters in fields (replace tabs with spaces)
+    local safe_name=$(echo "$APP_NAME" | tr '\t' ' ')
+    local safe_bundle_path=$(echo "$APP_BUNDLE" | tr '\t' ' ')
+    local safe_install_dir=$(echo "$INSTALL_DIR" | tr '\t' ' ')
+    local safe_profile_name=$(echo "$PROFILE_NAME" | tr '\t' ' ')
+    local safe_browser_name=$(echo "$BROWSER_NAME" | tr '\t' ' ')
+    local safe_browser_exec_path=$(echo "$BROWSER_EXEC_PATH" | tr '\t' ' ')
+    
+    # Append new app entry to registry file
+    echo -e "${app_id}\t${safe_name}\t${safe_bundle_path}\t${safe_install_dir}\t${safe_profile_name}\t${safe_browser_name}\t${safe_browser_exec_path}\t${dns_rules_str}\t${created_at}\t${icon_type}" >> "$registry_path"
+    
+    if [[ $? -eq 0 ]]; then
+        echo "✓ Registered app: $APP_NAME"
+        return 0
+    else
+        echo "❌ Failed to register app" >&2
+        return 1
+    fi
 }
-EOF
-    )
-    
-    # Read current registry, add new app, and write back
-    # Using python3 for reliable JSON manipulation
-    python3 << EOF
-import json
-import sys
 
-try:
-    # Read current registry
-    with open("$registry_path", "r") as f:
-        registry = json.load(f)
+# Function: list_apps
+# Purpose: Display all tracked browser apps from the registry
+# Parameters: None
+# Returns: 0 on success, 1 on error
+list_apps() {
+    local registry_path
+    registry_path=$(get_registry_path)
     
-    # Parse new app entry
-    new_app = json.loads('''$new_app_json''')
+    # Check if registry exists
+    if [[ ! -f "$registry_path" ]]; then
+        echo "📱 No browser apps found."
+        echo "   Create your first app by running: $0"
+        return 0
+    fi
     
-    # Add to registry
-    registry["apps"].append(new_app)
+    # Count apps (skip header line)
+    local app_count
+    app_count=$(tail -n +2 "$registry_path" | wc -l | tr -d ' ')
     
-    # Write back to file
-    with open("$registry_path", "w") as f:
-        json.dump(registry, f, indent=2)
+    if [[ $app_count -eq 0 ]]; then
+        echo "📱 No browser apps found."
+        echo "   Create your first app by running: $0"
+        return 0
+    fi
     
-    print(f"✓ Registered app: {new_app['name']}")
-    sys.exit(0)
+    # Header
+    echo "📱 Found $app_count browser app$([ $app_count -ne 1 ] && echo "s"):"
+    echo
+    
+    # Read and display each app (skip header line)
+    local line_num=1
+    tail -n +2 "$registry_path" | while IFS=$'\t' read -r id name bundle_path install_dir profile_name browser_name browser_exec_path dns_rules created_at icon_type; do
+        # Check if app bundle still exists
+        local status_icon="✅"
+        if [[ ! -e "$bundle_path" ]]; then
+            status_icon="❌"
+        fi
         
-except Exception as e:
-    print(f"❌ Failed to register app: {e}", file=sys.stderr)
-    sys.exit(1)
-EOF
+        # Format creation date (extract date and time from ISO 8601)
+        local formatted_date
+        if [[ "$created_at" =~ ^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}) ]]; then
+            formatted_date="${BASH_REMATCH[1]}-${BASH_REMATCH[2]}-${BASH_REMATCH[3]} ${BASH_REMATCH[4]}:${BASH_REMATCH[5]}"
+        else
+            formatted_date="$created_at"
+        fi
+        
+        # App header
+        echo "${line_num}. ${status_icon} ${name}"
+        echo "   ID: ${id}"
+        echo "   Bundle: ${bundle_path}"
+        echo "   Browser: ${browser_name}"
+        echo "   Profile: ${profile_name}"
+        echo "   Created: ${formatted_date}"
+        echo "   Icon: ${icon_type}"
+        
+        # Parse and display DNS rules
+        if [[ -n "$dns_rules" ]]; then
+            # Count rules by counting pipe separators + 1
+            local rule_count
+            rule_count=$(echo "$dns_rules" | tr -cd '|' | wc -c)
+            rule_count=$((rule_count + 1))
+            
+            echo "   DNS Rules (${rule_count}):"
+            
+            # Split on pipes and display each rule
+            echo "$dns_rules" | tr '|' '\n' | while IFS=':' read -r hostname ip; do
+                echo "     • ${hostname} → ${ip}"
+            done
+        else
+            echo "   DNS Rules: none"
+        fi
+        
+        if [[ "$status_icon" == "❌" ]]; then
+            echo "   ⚠️  App bundle no longer exists"
+        fi
+        
+        echo
+        ((line_num++))
+    done
+    
+    # Footer info
+    echo "💡 Tips:"
+    echo "   • Use the app ID to remove apps (coming soon)"
+    echo "   • Apps with ❌ may have been manually deleted"
 }
 
 # =============================================================================
@@ -439,6 +479,34 @@ suggest_profile_name() {
     # Example: "My Dev App (v2.0)" → "my-dev-app-v20"
     echo "$app_name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9 ]//g' | tr ' ' '-' | sed 's/--*/-/g' | sed 's/^-\|-$//g'
 }
+
+# =============================================================================
+# COMMAND LINE ARGUMENT PARSING  
+# =============================================================================
+
+# Parse command line arguments
+case "${1:-}" in
+    -h|--help)
+        show_help
+        exit 0
+        ;;
+    -v|--version)
+        show_version
+        exit 0
+        ;;
+    -l|--list)
+        list_apps
+        exit 0
+        ;;
+    "")
+        # No arguments - continue with interactive mode
+        ;;
+    *)
+        echo "Error: Unknown option '$1'"
+        echo "Run '$0 --help' for usage information."
+        exit 1
+        ;;
+esac
 
 # =============================================================================
 # MAIN SCRIPT EXECUTION
