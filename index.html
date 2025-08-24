@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dev Browser - Create custom browser shortcuts with DNS override rules for local development and testing on macOS">
+    <title>Dev Browser - Local Development Made Easy</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Dev Browser</h1>
+                <p class="tagline">Create custom browser shortcuts with DNS override rules for seamless local development</p>
+                <div class="badges">
+                    <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT License">
+                    <img src="https://img.shields.io/badge/Platform-macOS-blue.svg" alt="macOS Platform">
+                    <img src="https://img.shields.io/badge/Version-2.0.0-red.svg" alt="Version 2.0.0">
+                </div>
+                <div class="cta-buttons">
+                    <a href="#install" class="btn btn-primary">Get Started</a>
+                    <a href="https://github.com/cjflory/dev-browser" class="btn btn-secondary">View on GitHub</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="problem-solution">
+            <div class="container">
+                <div class="grid">
+                    <div class="card">
+                        <h2>🚨 The Problem</h2>
+                        <p>When developing web applications, you often need to test against local development environments while maintaining the same hostname as production (e.g., <code>example.com</code>).</p>
+                        <p>Traditional solutions like editing the hosts file affect the entire system and require admin privileges.</p>
+                    </div>
+                    <div class="card">
+                        <h2>✨ The Solution</h2>
+                        <p>Dev Browser creates custom browser app bundles with DNS override rules using Chromium's <code>--host-resolver-rules</code> flag.</p>
+                        <ul>
+                            <li>Uses separate browser profiles</li>
+                            <li>Applies DNS rules only to specific browser instances</li>
+                            <li>Runs alongside regular browsers</li>
+                            <li>Appears as native Mac apps</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="install" class="install">
+            <div class="container">
+                <h2>🚀 Quick Install</h2>
+                <div class="install-methods">
+                    <div class="install-card recommended">
+                        <h3>One-Command Install (Recommended)</h3>
+                        <div class="code-block">
+                            <code>curl -fsSL https://raw.githubusercontent.com/cjflory/dev-browser/main/dev-browser | bash -s install</code>
+                            <button onclick="copyToClipboard(this)" class="copy-btn">Copy</button>
+                        </div>
+                        <p>Downloads the script and icons to <code>~/.local/share/dev-browser/</code> and creates a <code>dev-browser</code> command.</p>
+                    </div>
+                    <div class="install-card">
+                        <h3>Manual Install</h3>
+                        <div class="code-block">
+                            <code>git clone https://github.com/cjflory/dev-browser.git<br>
+cd dev-browser<br>
+chmod +x dev-browser<br>
+./dev-browser install</code>
+                            <button onclick="copyToClipboard(this)" class="copy-btn">Copy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="container">
+                <h2>🌟 Key Features</h2>
+                <div class="features-grid">
+                    <div class="feature">
+                        <h3>🌐 Multi-Browser Support</h3>
+                        <p>Auto-detects Chrome, Brave, Edge, Vivaldi, Opera, Arc</p>
+                    </div>
+                    <div class="feature">
+                        <h3>🎯 Smart Defaults</h3>
+                        <p>Auto-suggests profile names from app names</p>
+                    </div>
+                    <div class="feature">
+                        <h3>📁 Organized Storage</h3>
+                        <p>Defaults to ~/dev-browsers directory for easy management</p>
+                    </div>
+                    <div class="feature">
+                        <h3>📱 Native Mac Apps</h3>
+                        <p>Proper .app bundles with distinctive icons</p>
+                    </div>
+                    <div class="feature">
+                        <h3>🔒 Isolated Profiles</h3>
+                        <p>Separate from your main browser data</p>
+                    </div>
+                    <div class="feature">
+                        <h3>⚡ No Admin Required</h3>
+                        <p>No system-wide changes or privileges needed</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="usage">
+            <div class="container">
+                <h2>💻 How to Use</h2>
+                <div class="usage-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Run the Command</h3>
+                            <div class="code-block">
+                                <code>dev-browser create</code>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Follow Interactive Prompts</h3>
+                            <ul>
+                                <li>Browser selection (auto-detected)</li>
+                                <li>App name (e.g., "Dev Environment")</li>
+                                <li>DNS rules (hostname → IP mappings)</li>
+                                <li>Optional custom icon</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Launch Your Dev Browser</h3>
+                            <p>Double-click the created .app bundle or drag it to your Dock</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="use-cases">
+            <div class="container">
+                <h2>🎯 Use Cases</h2>
+                <div class="grid">
+                    <div class="use-case">
+                        <h3>Frontend Development</h3>
+                        <ul>
+                            <li>Test React/Vue/Angular apps against different API environments</li>
+                            <li>Switch between local, staging, and production backends</li>
+                            <li>Debug cross-origin issues with proper domain names</li>
+                        </ul>
+                    </div>
+                    <div class="use-case">
+                        <h3>Full-Stack Development</h3>
+                        <ul>
+                            <li>Run multiple microservices locally with production-like URLs</li>
+                            <li>Test authentication flows with real domain names</li>
+                            <li>Validate SSL certificate handling in development</li>
+                        </ul>
+                    </div>
+                    <div class="use-case">
+                        <h3>QA Testing</h3>
+                        <ul>
+                            <li>Create dedicated browser profiles for each test environment</li>
+                            <li>Isolate test data and browser state</li>
+                            <li>Quick switching between different API versions</li>
+                        </ul>
+                    </div>
+                    <div class="use-case">
+                        <h3>DevOps/Infrastructure</h3>
+                        <ul>
+                            <li>Test load balancer configurations locally</li>
+                            <li>Validate DNS changes before going live</li>
+                            <li>Debug service discovery issues</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="example">
+            <div class="container">
+                <h2>📝 Example Usage</h2>
+                <div class="terminal">
+                    <div class="terminal-header">
+                        <span class="terminal-title">Terminal</span>
+                    </div>
+                    <div class="terminal-content">
+                        <div class="terminal-line">$ dev-browser create</div>
+                        <div class="terminal-line">🌐 Using detected browser: Brave Browser</div>
+                        <div class="terminal-line">📱 App name: Dev Environment</div>
+                        <div class="terminal-line">🌐 DNS Mapping Rules:</div>
+                        <div class="terminal-line">   example.com 192.168.1.100</div>
+                        <div class="terminal-line">   api.example.com 192.168.1.101</div>
+                        <div class="terminal-line">✅ Created "Dev Environment.app" in ~/dev-browsers/</div>
+                    </div>
+                </div>
+                <p class="example-description">
+                    This creates a Brave Browser app that redirects <code>example.com</code> to your local development server 
+                    and <code>api.example.com</code> to your local API server, all with a separate browser profile.
+                </p>
+            </div>
+        </section>
+
+        <section class="requirements">
+            <div class="container">
+                <h2>📋 Requirements</h2>
+                <div class="requirements-list">
+                    <div class="requirement">
+                        <strong>macOS</strong> (tested on macOS 10.14+)
+                    </div>
+                    <div class="requirement">
+                        <strong>Bash 4.0+</strong> (pre-installed on macOS)
+                    </div>
+                    <div class="requirement">
+                        <strong>At least one Chromium-based browser:</strong>
+                        <ul>
+                            <li>Google Chrome</li>
+                            <li>Brave Browser</li>
+                            <li>Microsoft Edge</li>
+                            <li>Chromium</li>
+                            <li>Opera</li>
+                            <li>Arc Browser</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="https://github.com/cjflory/dev-browser">GitHub</a>
+                    <a href="https://github.com/cjflory/dev-browser/issues">Issues</a>
+                    <a href="https://github.com/cjflory/dev-browser/releases">Releases</a>
+                </div>
+                <div class="footer-text">
+                    <p>© 2024 Dev Browser. Licensed under MIT License.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function copyToClipboard(button) {
+            const codeBlock = button.previousElementSibling;
+            const text = codeBlock.innerText || codeBlock.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                button.textContent = 'Copied!';
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
