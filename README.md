@@ -56,6 +56,8 @@ This removes the installation but keeps any browser apps you've created.
 
 ## Usage
 
+### Creating Browser Apps
+
 1. Run the script:
    ```bash
    make-dev-browser          # If installed via curl
@@ -74,6 +76,21 @@ This removes the installation but keeps any browser apps you've created.
    - Double-click to launch
    - Drag to Applications folder  
    - Add to Dock for quick access
+
+### Managing Browser Apps
+
+**List all created apps:**
+```bash
+make-dev-browser --list          # If installed via curl
+./make-dev-browser.sh --list     # If cloned manually
+```
+
+This shows all tracked browser apps with:
+- App status (✅ exists, ❌ missing)
+- App ID, name, and bundle location
+- Browser type and profile name
+- Creation timestamp
+- DNS rules and icon type
 
 ## Example
 
@@ -103,6 +120,37 @@ This creates "Dev Environment.app" in `~/dev-browsers/` that:
 - Redirects `api.example.com` → `192.168.1.101`
 - Has a unique randomly-selected icon
 
+**List apps example:**
+```
+$ make-dev-browser --list
+📱 Found 2 browser apps:
+
+1. ✅ Dev Environment
+   ID: dev-environment-1755998096
+   Bundle: /Users/user/dev-browsers/Dev Environment.app
+   Browser: Brave Browser
+   Profile: dev-environment
+   Created: 2025-08-24 01:14
+   Icon: generated
+   DNS Rules (2):
+     • example.com → 192.168.1.100
+     • api.example.com → 192.168.1.101
+
+2. ❌ Old Staging
+   ID: old-staging-1755998200
+   Bundle: /Users/user/dev-browsers/Old Staging.app
+   Browser: Google Chrome
+   Profile: old-staging
+   Created: 2025-08-23 14:30
+   Icon: custom
+   DNS Rules: none
+   ⚠️  App bundle no longer exists
+
+💡 Tips:
+   • Use the app ID to remove apps (coming soon)
+   • Apps with ❌ may have been manually deleted
+```
+
 ## Use Cases
 
 **Frontend Development**
@@ -130,6 +178,8 @@ This creates "Dev Environment.app" in `~/dev-browsers/` that:
 - ✅ **Multi-browser support**: Auto-detects Chrome, Brave, Edge, Vivaldi, Opera, Arc
 - ✅ **Smart defaults**: Auto-suggests profile names from app names  
 - ✅ **Organized storage**: Defaults to `~/dev-browsers` directory for easy management
+- ✅ **App tracking**: Registry system tracks all created browser apps
+- ✅ **List functionality**: View all created apps with `--list` command
 - ✅ **Interactive setup**: Guided prompts with input validation
 - ✅ **Multiple DNS rules**: Support for complex routing scenarios
 - ✅ **Separate profiles**: Isolated from your main browser data
