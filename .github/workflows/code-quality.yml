@@ -32,18 +32,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
-    - name: Run Bandit Security Scan
-      uses: securecodewarrior/github-action-add-sarif@v1
-      if: always()
-      with:
-        sarif-file: bandit-results.sarif
-      continue-on-error: true
-    
-    - name: Install security tools
-      run: |
-        sudo apt-get update
-        pip install bandit[toml] safety
         
     - name: Analyze shell script security
       run: |
