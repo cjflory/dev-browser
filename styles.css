@@ -502,6 +502,12 @@ code {
     color: #81c784;
 }
 
+/* Comment lines in terminal - less prominent than commands */
+.terminal-line.comment {
+    color: #94a3b8 !important;
+    opacity: 0.8;
+}
+
 .example-description {
     text-align: center;
     max-width: 700px;
