@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg)](https://www.apple.com/macos/)
 [![Shell: Bash](https://img.shields.io/badge/Shell-Bash-green.svg)](https://www.gnu.org/software/bash/)
-[![Version: 2.0.0](https://img.shields.io/badge/Version-2.0.0-red.svg)](https://github.com/cjflory/dev-browser)
+[![Version: 2.1.0](https://img.shields.io/badge/Version-2.1.0-red.svg)](https://github.com/cjflory/dev-browser)
 
 A development tool that creates custom browser shortcuts with DNS override rules, allowing developers to redirect specific hostnames to different IP addresses for local development and testing.
 
