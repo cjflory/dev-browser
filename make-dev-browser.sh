@@ -310,7 +310,25 @@ suggest_profile_name() {
 select_browser
 echo
 
-# Step 2: Get app name from user (with validation)
+# Step 2: Ask where to place browser shortcuts
+echo "📁 Where would you like to place your browser shortcuts?"
+echo "   Default: ~/dev-browsers"
+read -p "   Installation directory (press Enter for default): " INSTALL_DIR
+
+# If user just pressed Enter, use the default
+if [[ -z "$INSTALL_DIR" ]]; then
+    INSTALL_DIR="$HOME/dev-browsers"
+else
+    # Expand tilde in user-provided path
+    INSTALL_DIR="${INSTALL_DIR/#\~/$HOME}"
+fi
+
+# Create the installation directory if it doesn't exist
+mkdir -p "$INSTALL_DIR"
+echo "✓ Using installation directory: $INSTALL_DIR"
+echo
+
+# Step 3: Get app name from user (with validation)
 while true; do
     read -p "📱 App name (e.g., 'Chrome Dev'): " APP_NAME
     
@@ -381,6 +399,7 @@ read -p "🎨 Custom icon path (optional, press Enter to skip): " ICON_PATH
 echo
 echo "📋 Summary:"
 echo "   App Name: $APP_NAME"
+echo "   Install Location: $INSTALL_DIR/$APP_NAME.app"
 echo "   Profile: chrome-profiles/$PROFILE_NAME"
 echo "   DNS Rules: ${#DNS_RULES[@]} rule(s)"
 for rule in "${DNS_RULES[@]}"; do
@@ -397,8 +416,8 @@ if [[ "$confirm" =~ ^[Nn]$ ]]; then
     exit 0
 fi
 
-# Generate app bundle
-APP_BUNDLE="$APP_NAME.app"
+# Generate app bundle in the specified installation directory
+APP_BUNDLE="$INSTALL_DIR/$APP_NAME.app"
 APP_DIR="$APP_BUNDLE/Contents"
 MACOS_DIR="$APP_DIR/MacOS"
 RESOURCES_DIR="$APP_DIR/Resources"

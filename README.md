@@ -64,6 +64,7 @@ This removes the installation but keeps any browser apps you've created.
 
 2. Follow the interactive prompts:
    - **Browser selection**: Automatically detects installed Chromium browsers
+   - **Installation directory**: Where to place browser shortcuts (defaults to `~/dev-browsers`)
    - **App name**: "Dev Environment", "Staging", etc. 
    - **Profile name**: Auto-suggested from app name (customizable)
    - **DNS rules**: Enter hostname-to-IP mappings (one per line)
@@ -79,6 +80,10 @@ This removes the installation but keeps any browser apps you've created.
 ```
 🌐 Using detected browser: Brave Browser
 
+📁 Where would you like to place your browser shortcuts?
+   Default: ~/dev-browsers
+   Installation directory (press Enter for default): 
+
 📱 App name: Dev Environment
 📁 Profile directory name:
    Suggested: 'dev-environment' (press Enter to use this)
@@ -92,7 +97,7 @@ This removes the installation but keeps any browser apps you've created.
 ✅ Create app? (Y/n): 
 ```
 
-This creates "Dev Environment.app" that:
+This creates "Dev Environment.app" in `~/dev-browsers/` that:
 - Launches Brave Browser with a separate profile
 - Redirects `example.com` → `192.168.1.100`  
 - Redirects `api.example.com` → `192.168.1.101`
@@ -124,6 +129,7 @@ This creates "Dev Environment.app" that:
 
 - ✅ **Multi-browser support**: Auto-detects Chrome, Brave, Edge, Vivaldi, Opera, Arc
 - ✅ **Smart defaults**: Auto-suggests profile names from app names  
+- ✅ **Organized storage**: Defaults to `~/dev-browsers` directory for easy management
 - ✅ **Interactive setup**: Guided prompts with input validation
 - ✅ **Multiple DNS rules**: Support for complex routing scenarios
 - ✅ **Separate profiles**: Isolated from your main browser data
