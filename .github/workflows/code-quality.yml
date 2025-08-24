@@ -1,0 +1,265 @@
+name: Code Quality & Static Analysis
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  shellcheck:
+    name: Shell Script Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Run ShellCheck
+      uses: ludeeus/action-shellcheck@master
+      with:
+        severity: warning
+        additional_files: 'dev-browser'
+        ignore_paths: '.git'
+        ignore_names: 'README.md'
+      env:
+        SHELLCHECK_OPTS: -e SC1091 -e SC2034
+
+  security-scan:
+    name: Security Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Run Bandit Security Scan
+      uses: securecodewarrior/github-action-add-sarif@v1
+      if: always()
+      with:
+        sarif-file: bandit-results.sarif
+      continue-on-error: true
+    
+    - name: Install security tools
+      run: |
+        sudo apt-get update
+        pip install bandit[toml] safety
+        
+    - name: Analyze shell script security
+      run: |
+        echo "Checking for common security patterns in shell scripts..."
+        # Check for common security issues
+        if grep -r "eval\|system\|exec\|\`" --include="*.sh" --include="dev-browser" . ; then
+          echo "⚠️  Found potentially dangerous commands"
+        else
+          echo "✅ No obvious security issues found"
+        fi
+        
+        # Check for hardcoded secrets (basic patterns)
+        if grep -r -i "password\|secret\|key\|token" --include="*.sh" --include="dev-browser" . | grep -v "# " | grep -v "echo"; then
+          echo "⚠️  Potential hardcoded secrets found"
+          exit 1
+        else
+          echo "✅ No hardcoded secrets detected"
+        fi
+
+  png-validation:
+    name: PNG File Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install image analysis tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y imagemagick pngcheck optipng
+        
+    - name: Validate PNG files
+      run: |
+        echo "🖼️  Analyzing PNG files in icons/ directory..."
+        
+        total_size=0
+        file_count=0
+        
+        for png_file in icons/*.png; do
+          if [ -f "$png_file" ]; then
+            echo "Checking: $png_file"
+            
+            # Validate PNG integrity
+            if pngcheck -q "$png_file"; then
+              echo "  ✅ Valid PNG format"
+            else
+              echo "  ❌ Invalid PNG format"
+              exit 1
+            fi
+            
+            # Get file info
+            file_size=$(stat -f%z "$png_file" 2>/dev/null || stat -c%s "$png_file")
+            total_size=$((total_size + file_size))
+            file_count=$((file_count + 1))
+            
+            # Check dimensions
+            dimensions=$(identify -format "%wx%h" "$png_file")
+            echo "  📏 Dimensions: $dimensions"
+            echo "  💾 Size: $(( file_size / 1024 ))KB"
+            
+            # Warn on large files
+            if [ "$file_size" -gt 51200 ]; then  # 50KB
+              echo "  ⚠️  Large file size (>50KB) - consider optimization"
+            fi
+            
+            # Check if optimization would help
+            temp_file=$(mktemp).png
+            optipng -quiet -out "$temp_file" "$png_file" 2>/dev/null || cp "$png_file" "$temp_file"
+            optimized_size=$(stat -f%z "$temp_file" 2>/dev/null || stat -c%s "$temp_file")
+            
+            if [ "$optimized_size" -lt "$file_size" ]; then
+              saved=$(( (file_size - optimized_size) * 100 / file_size ))
+              echo "  🗜️  Could save ${saved}% with optimization"
+            fi
+            
+            rm -f "$temp_file"
+            echo ""
+          fi
+        done
+        
+        echo "📊 Summary:"
+        echo "  Files analyzed: $file_count"
+        echo "  Total size: $(( total_size / 1024 ))KB"
+        echo "  Average size: $(( total_size / file_count / 1024 ))KB per file"
+
+  code-standards:
+    name: Code Standards Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Check file standards
+      run: |
+        echo "📝 Checking code standards..."
+        
+        # Check file encoding
+        if file dev-browser | grep -q "UTF-8"; then
+          echo "✅ dev-browser: UTF-8 encoding"
+        else
+          echo "⚠️  dev-browser: Check encoding"
+        fi
+        
+        # Check executable permissions
+        if [ -x "dev-browser" ]; then
+          echo "✅ dev-browser: Executable permissions set"
+        else
+          echo "❌ dev-browser: Missing executable permissions"
+          exit 1
+        fi
+        
+        # Check shebang
+        if head -1 dev-browser | grep -q "#!/bin/bash"; then
+          echo "✅ dev-browser: Correct shebang"
+        else
+          echo "⚠️  dev-browser: Check shebang line"
+        fi
+        
+        # Check line endings (Unix style)
+        if file dev-browser | grep -q "CRLF"; then
+          echo "❌ dev-browser: Windows line endings detected"
+          exit 1
+        else
+          echo "✅ dev-browser: Unix line endings"
+        fi
+        
+        # Check for trailing whitespace
+        if grep -q "[[:space:]]$" dev-browser; then
+          echo "⚠️  dev-browser: Trailing whitespace found"
+          # Don't fail, just warn
+        else
+          echo "✅ dev-browser: No trailing whitespace"
+        fi
+
+  dependency-check:
+    name: Dependency Security Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Check external dependencies
+      run: |
+        echo "🔍 Checking external dependencies and URLs..."
+        
+        # Extract URLs from the script
+        urls=$(grep -oE 'https?://[^\s"'"'"']+' dev-browser || true)
+        
+        if [ -n "$urls" ]; then
+          echo "📡 Found external URLs:"
+          echo "$urls" | sort -u | while read -r url; do
+            echo "  $url"
+            # Basic URL validation (could be enhanced)
+            if curl -s --head --max-time 10 "$url" > /dev/null; then
+              echo "    ✅ Accessible"
+            else
+              echo "    ⚠️  Check accessibility"
+            fi
+          done
+        else
+          echo "ℹ️  No external URLs found"
+        fi
+        
+        # Check for any potential dependency issues
+        if grep -q "curl\|wget\|git\|brew" dev-browser; then
+          echo "📦 Script uses external tools - ensure documentation covers requirements"
+        fi
+
+  comprehensive-test:
+    name: Comprehensive Analysis Summary  
+    runs-on: ubuntu-latest
+    needs: [shellcheck, security-scan, png-validation, code-standards, dependency-check]
+    if: always()
+    
+    steps:
+    - name: Analysis Summary
+      run: |
+        echo "🎯 Code Quality Analysis Complete"
+        echo "================================="
+        
+        # Check job results
+        if [ "${{ needs.shellcheck.result }}" = "success" ]; then
+          echo "✅ Shell script analysis passed"
+        else
+          echo "❌ Shell script analysis failed"
+        fi
+        
+        if [ "${{ needs.security-scan.result }}" = "success" ]; then
+          echo "✅ Security scan passed" 
+        else
+          echo "❌ Security scan failed"
+        fi
+        
+        if [ "${{ needs.png-validation.result }}" = "success" ]; then
+          echo "✅ PNG validation passed"
+        else
+          echo "❌ PNG validation failed"
+        fi
+        
+        if [ "${{ needs.code-standards.result }}" = "success" ]; then
+          echo "✅ Code standards check passed"
+        else
+          echo "❌ Code standards check failed"
+        fi
+        
+        if [ "${{ needs.dependency-check.result }}" = "success" ]; then
+          echo "✅ Dependency check passed"
+        else
+          echo "❌ Dependency check failed"
+        fi
+        
+        echo ""
+        echo "📝 Next steps:"
+        echo "  • Review any warnings or failures above"
+        echo "  • Check the individual job logs for details"
+        echo "  • Consider the suggestions for optimization"
