@@ -639,14 +639,11 @@ footer {
     box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
 }
 
-/* Step content width fix for when steps stack vertically */
-@media (max-width: 900px) {
+@media (max-width: 768px) {
     .step-content {
-        width: 100% !important;
-        flex: none !important;
-        max-width: 100%;
-        box-sizing: border-box;
-        text-align: center;
+        width: 100%;
+        flex: none;
+        text-align: left;
     }
 }
 
