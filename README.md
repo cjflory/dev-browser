@@ -1,9 +1,9 @@
-# Dev Browser Maker
+# Dev Browser
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg)](https://www.apple.com/macos/)
 [![Shell: Bash](https://img.shields.io/badge/Shell-Bash-green.svg)](https://www.gnu.org/software/bash/)
-[![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-red.svg)](https://github.com/cjflory/dev-browser-maker)
+[![Version: 2.0.0](https://img.shields.io/badge/Version-2.0.0-red.svg)](https://github.com/cjflory/dev-browser)
 
 A development tool that creates custom browser apps with DNS override rules, allowing developers to redirect specific hostnames to different IP addresses for local development and testing.
 
@@ -37,20 +37,25 @@ This project provides `make-dev-browser.sh` - an interactive script that creates
 
 ### One-Command Install (Recommended)
 ```bash
-curl -fsSL https://raw.githubusercontent.com/cjflory/dev-browser-maker/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/cjflory/dev-browser/main/dev-browser | bash -s install
 ```
-This downloads the script and icons to `~/.local/share/dev-browser-maker/` and creates a `make-dev-browser` command.
+This downloads the script and icons to `~/.local/share/dev-browser/` and creates a `dev-browser` command.
 
 ### Manual Install
 ```bash
-git clone https://github.com/cjflory/dev-browser-maker.git
-cd dev-browser-maker
-chmod +x make-dev-browser.sh
+git clone https://github.com/cjflory/dev-browser.git
+cd dev-browser
+chmod +x dev-browser
+./dev-browser install
 ```
 
 ### Uninstall
 ```bash
-curl -fsSL https://raw.githubusercontent.com/cjflory/dev-browser-maker/main/uninstall.sh | bash
+dev-browser uninstall
+```
+Or if not in PATH:
+```bash
+~/.local/share/dev-browser/dev-browser uninstall
 ```
 This removes the installation but keeps any browser apps you've created.
 
@@ -60,8 +65,14 @@ This removes the installation but keeps any browser apps you've created.
 
 1. Run the script:
    ```bash
-   make-dev-browser          # If installed via curl
-   ./make-dev-browser.sh     # If cloned manually
+   dev-browser create               # If installed via curl
+   ./dev-browser create             # If cloned manually
+   ```
+   
+   Or simply:
+   ```bash
+   dev-browser                      # Defaults to create mode
+   ./dev-browser                    # Defaults to create mode
    ```
 
 2. Follow the interactive prompts:
@@ -81,8 +92,14 @@ This removes the installation but keeps any browser apps you've created.
 
 **List all created apps:**
 ```bash
-make-dev-browser --list          # If installed via curl
-./make-dev-browser.sh --list     # If cloned manually
+dev-browser list                 # If installed via curl
+./dev-browser list               # If cloned manually
+```
+
+**Remove an app:**
+```bash
+dev-browser remove <app-id>      # If installed via curl
+./dev-browser remove <app-id>    # If cloned manually
 ```
 
 This shows all tracked browser apps with:
@@ -122,7 +139,7 @@ This creates "Dev Environment.app" in `~/dev-browsers/` that:
 
 **List apps example:**
 ```
-$ make-dev-browser --list
+$ dev-browser list
 📱 Found 2 browser apps:
 
 1. ✅ Dev Environment
@@ -301,8 +318,8 @@ The script includes 10 unique PNG icons (`icons/icon-01.png` through `icon-10.pn
 
 ### Getting Help
 ```bash
-./make-dev-browser.sh --help  # Show usage information
-./make-dev-browser.sh --version  # Show version
+./dev-browser help               # Show usage information
+./dev-browser version             # Show version
 ```
 
-For issues not covered here, please check the [GitHub Issues](https://github.com/cjflory/dev-browser-maker/issues).
+For issues not covered here, please check the [GitHub Issues](https://github.com/cjflory/dev-browser/issues).

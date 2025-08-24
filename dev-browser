@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # =============================================================================
-# Dev Browser Maker v1.0.0
+# Dev Browser v2.0.0
 # =============================================================================
 # Creates custom browser app bundles with DNS override rules for development
 #
@@ -18,44 +18,55 @@
 set -e
 
 # Version information
-VERSION="1.0.0"
+VERSION="2.0.0"
 
 # Function to display help information
 show_help() {
-    echo "Dev Browser Maker v${VERSION}"
+    echo "Dev Browser v${VERSION}"
     echo "Creates custom browser apps with DNS override rules for development"
     echo ""
-    echo "Usage: $0 [OPTIONS]"
+    echo "Usage: $0 <command> [options]"
     echo ""
-    echo "Options:"
-    echo "  -h, --help         Show this help message"
-    echo "  -v, --version      Show version information"
-    echo "  -l, --list         List all created browser apps"
-    echo "  -r, --remove ID    Remove a browser app by ID"
-    echo ""
-    echo "Interactive mode (no options):"
-    echo "  The script will guide you through creating a custom browser app"
-    echo "  with DNS rules to redirect hostnames to specific IP addresses."
+    echo "Commands:"
+    echo "  install            Install dev-browser from GitHub"
+    echo "  uninstall          Uninstall dev-browser from system"
+    echo "  create             Create a new browser app (interactive)"
+    echo "  list               List all created browser apps"
+    echo "  remove <app-id>    Remove a browser app by ID"
+    echo "  help               Show this help message"
+    echo "  version            Show version information"
     echo ""
     echo "Examples:"
-    echo "  $0                    # Run in interactive mode"
-    echo "  $0 --help             # Show this help"
-    echo "  $0 --version          # Show version"
-    echo "  $0 --list             # List created apps"
-    echo "  $0 --remove app-id    # Remove app by ID"
+    echo "  $0 install             # Install from GitHub"
+    echo "  $0 create              # Create new browser app"
+    echo "  $0 list                # List created apps"
+    echo "  $0 remove app-id       # Remove app by ID"
+    echo "  $0 uninstall           # Uninstall from system"
 }
 
 # Function to display version information
 show_version() {
-    echo "Dev Browser Maker v${VERSION}"
+    echo "Dev Browser v${VERSION}"
 }
 
-# Display welcome message (only in interactive mode)
-if [[ "${1:-}" == "" ]]; then
-    echo "🚀 Dev Browser Maker v${VERSION}"
-    echo "================================"
-    echo
-fi
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Helper functions for colored output
+print_info() { echo -e "${BLUE}ℹ️  $1${NC}"; }
+print_success() { echo -e "${GREEN}✅ $1${NC}"; }
+print_warning() { echo -e "${YELLOW}⚠️  $1${NC}"; }
+print_error() { echo -e "${RED}❌ $1${NC}"; }
+
+# Configuration for install/uninstall
+REPO_URL="https://github.com/cjflory/dev-browser"
+RAW_URL="https://raw.githubusercontent.com/cjflory/dev-browser/main"
+INSTALL_DIR_DEFAULT="$HOME/.local/share/dev-browser"
+BIN_DIR_DEFAULT="$HOME/.local/bin"
 
 # =============================================================================
 # UTILITY FUNCTIONS
@@ -70,7 +81,7 @@ fi
 # Parameters: None
 # Returns: Prints the registry file path to stdout
 get_registry_path() {
-    local registry_dir="$HOME/.local/share/dev-browser-maker"
+    local registry_dir="$HOME/.local/share/dev-browser"
     echo "$registry_dir/apps.tsv"
 }
 
@@ -176,7 +187,7 @@ list_apps() {
     # Check if registry exists
     if [[ ! -f "$registry_path" ]]; then
         echo "📱 No browser apps found."
-        echo "   Create your first app by running: $0"
+        echo "   Create your first app by running: $0 create"
         return 0
     fi
     
@@ -186,7 +197,7 @@ list_apps() {
     
     if [[ $app_count -eq 0 ]]; then
         echo "📱 No browser apps found."
-        echo "   Create your first app by running: $0"
+        echo "   Create your first app by running: $0 create"
         return 0
     fi
     
@@ -247,7 +258,7 @@ list_apps() {
     
     # Footer info
     echo "💡 Tips:"
-    echo "   • Use the app ID to remove apps with: $0 --remove <app-id>"
+    echo "   • Use the app ID to remove apps with: $0 remove <app-id>"
     echo "   • Apps with ❌ may have been manually deleted"
 }
 
@@ -272,7 +283,7 @@ remove_app() {
     
     if [[ -z "$app_line" ]]; then
         echo "❌ App with ID '$app_id' not found."
-        echo "   Use '$0 --list' to see available app IDs"
+        echo "   Use '$0 list' to see available app IDs"
         return 1
     fi
     
@@ -578,45 +589,241 @@ suggest_profile_name() {
 }
 
 # =============================================================================
+# INSTALL/UNINSTALL SUBCOMMAND FUNCTIONS
+# =============================================================================
+
+# Function: install_subcommand
+# Purpose: Download and install dev-browser from GitHub
+# Parameters: None
+# Returns: 0 on success, 1 on failure
+install_subcommand() {
+    local install_dir="$INSTALL_DIR_DEFAULT"
+    local bin_dir="$BIN_DIR_DEFAULT"
+    
+    echo -e "${BLUE}🚀 Dev Browser Remote Installer${NC}"
+    echo "======================================"
+    echo
+    
+    # Check if running on macOS
+    if [[ "$(uname)" != "Darwin" ]]; then
+        print_error "This tool only works on macOS"
+        return 1
+    fi
+    
+    # Check for required commands
+    for cmd in curl mkdir chmod; do
+        if ! command -v "$cmd" &> /dev/null; then
+            print_error "Required command '$cmd' not found"
+            return 1
+        fi
+    done
+    
+    # Create directories
+    print_info "Setting up directories..."
+    mkdir -p "$install_dir" "$install_dir/icons" "$bin_dir"
+    
+    # Download main script
+    print_info "Downloading dev-browser..."
+    if curl -fsSL "$RAW_URL/dev-browser" -o "$install_dir/dev-browser"; then
+        chmod +x "$install_dir/dev-browser"
+        print_success "Downloaded main script"
+    else
+        print_error "Failed to download main script"
+        return 1
+    fi
+    
+    # Download icons
+    print_info "Downloading icon assets..."
+    for i in {1..10}; do
+        if curl -fsSL "$RAW_URL/icons/icon-$i.png" -o "$install_dir/icons/icon-$i.png" 2>/dev/null; then
+            echo -n "."
+        else
+            print_warning "Failed to download icon-$i.png (continuing...)"
+        fi
+    done
+    echo
+    print_success "Downloaded icon assets"
+    
+    # Create wrapper script in bin
+    print_info "Creating wrapper script..."
+    cat > "$bin_dir/dev-browser" << 'EOF'
+#!/bin/bash
+exec "$HOME/.local/share/dev-browser/dev-browser" "$@"
+EOF
+    chmod +x "$bin_dir/dev-browser"
+    print_success "Created wrapper script"
+    
+    # Check PATH
+    echo
+    if echo "$PATH" | grep -q "$bin_dir"; then
+        print_success "Installation complete! Run: dev-browser"
+    else
+        print_success "Installation complete!"
+        print_info "Add to your shell profile to use globally:"
+        echo "  echo 'export PATH=\"\$HOME/.local/bin:\$PATH\"' >> ~/.zshrc"
+        echo "  source ~/.zshrc"
+        echo
+        print_info "Or run directly: $bin_dir/dev-browser"
+    fi
+    
+    print_info "Installation directory: $install_dir"
+    print_info "GitHub repository: $REPO_URL"
+    
+    return 0
+}
+
+# Function: uninstall_subcommand
+# Purpose: Remove dev-browser installation from system
+# Parameters: None  
+# Returns: 0 on success, 1 on failure
+uninstall_subcommand() {
+    local install_dir="$INSTALL_DIR_DEFAULT"
+    local bin_dir="$BIN_DIR_DEFAULT"
+    local wrapper_script="$bin_dir/dev-browser"
+    
+    echo -e "${BLUE}🗑️  Dev Browser Uninstaller${NC}"
+    echo "===================================="
+    echo
+    
+    # Check if installed
+    if [[ ! -d "$install_dir" ]] && [[ ! -f "$wrapper_script" ]]; then
+        print_warning "Dev Browser doesn't appear to be installed"
+        print_info "Installation directory: $install_dir"
+        print_info "Wrapper script: $wrapper_script"
+        return 0
+    fi
+    
+    # Show what will be removed
+    print_info "The following will be removed:"
+    if [[ -d "$install_dir" ]]; then
+        echo "  📁 Installation directory: $install_dir"
+        echo "     $(find "$install_dir" -type f 2>/dev/null | wc -l | xargs) files"
+    fi
+    if [[ -f "$wrapper_script" ]]; then
+        echo "  🔗 Wrapper script: $wrapper_script"
+    fi
+    
+    echo
+    print_warning "This will NOT remove any apps you've created with dev-browser"
+    print_info "Those are stored as .app bundles wherever you created them"
+    echo
+    
+    # Confirmation - skip if running non-interactively
+    if [[ -t 0 ]]; then
+        # Interactive terminal
+        read -p "Continue with uninstall? (y/N): " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            print_info "Uninstall cancelled"
+            return 0
+        fi
+    else
+        # Running non-interactively
+        print_info "Running in non-interactive mode, proceeding with uninstall..."
+        sleep 2
+    fi
+    
+    # Remove installation directory
+    if [[ -d "$install_dir" ]]; then
+        print_info "Removing installation directory..."
+        if rm -rf "$install_dir"; then
+            print_success "Removed $install_dir"
+        else
+            print_error "Failed to remove $install_dir"
+        fi
+    fi
+    
+    # Remove wrapper script
+    if [[ -f "$wrapper_script" ]]; then
+        print_info "Removing wrapper script..."
+        if rm -f "$wrapper_script"; then
+            print_success "Removed $wrapper_script"
+        else
+            print_error "Failed to remove $wrapper_script"
+        fi
+    fi
+    
+    # Check if .local/bin is empty and can be removed
+    if [[ -d "$bin_dir" ]] && [[ -z "$(ls -A "$bin_dir" 2>/dev/null)" ]]; then
+        print_info "Removing empty $bin_dir directory..."
+        rmdir "$bin_dir" 2>/dev/null || true
+    fi
+    
+    # Check if .local/share is empty and can be removed
+    if [[ -d "$HOME/.local/share" ]] && [[ -z "$(ls -A "$HOME/.local/share" 2>/dev/null)" ]]; then
+        print_info "Removing empty $HOME/.local/share directory..."
+        rmdir "$HOME/.local/share" 2>/dev/null || true
+    fi
+    
+    echo
+    print_success "Uninstall complete!"
+    print_info "Any browser apps you created are still available"
+    print_info "You can manually delete them from Applications or wherever you saved them"
+    
+    return 0
+}
+
+# =============================================================================
 # COMMAND LINE ARGUMENT PARSING  
 # =============================================================================
 
-# Parse command line arguments
+# Parse subcommands and legacy flags
 case "${1:-}" in
-    -h|--help)
-        show_help
-        exit 0
+    # New subcommand interface
+    install)
+        install_subcommand
+        exit $?
         ;;
-    -v|--version)
-        show_version
-        exit 0
+    uninstall)
+        uninstall_subcommand
+        exit $?
         ;;
-    -l|--list)
+    create)
+        # Continue to interactive mode (skip argument parsing)
+        ;;
+    list)
         list_apps
-        exit 0
+        exit $?
         ;;
-    -r|--remove)
+    remove)
         if [[ -z "${2:-}" ]]; then
-            echo "Error: --remove requires an app ID"
-            echo "Use '$0 --list' to see available app IDs"
+            echo "Error: remove requires an app ID"
+            echo "Use '$0 list' to see available app IDs"
             exit 1
         fi
         remove_app "$2"
+        exit $?
+        ;;
+    help)
+        show_help
         exit 0
         ;;
-    "")
-        # No arguments - continue with interactive mode
+    version)
+        show_version
+        exit 0
         ;;
+    
+    # No arguments - default to create mode
+    "")
+        # Continue to interactive create mode
+        ;;
+    
+    # Unknown arguments
     *)
-        echo "Error: Unknown option '$1'"
-        echo "Run '$0 --help' for usage information."
+        echo "Error: Unknown command '$1'"
+        echo "Run '$0 help' for usage information."
         exit 1
         ;;
 esac
 
 # =============================================================================
-# MAIN SCRIPT EXECUTION
+# MAIN SCRIPT EXECUTION - CREATE MODE
 # =============================================================================
+
+# Display welcome message for create mode
+echo "🚀 Dev Browser v${VERSION} - Create Mode"
+echo "====================================="
+echo
 
 # Step 1: Detect and select browser to use
 select_browser
@@ -766,7 +973,7 @@ cat > "$EXECUTABLE_PATH" << EOF
 #!/bin/bash
 
 # $BROWSER_NAME launcher with custom DNS rules
-# Generated by Dev Browser Maker
+# Generated by Dev Browser
 
 BROWSER_PATH="$BROWSER_EXEC_PATH"
 
@@ -874,4 +1081,5 @@ echo "💡 Tips:"
 echo "   • Each app uses a separate $BROWSER_NAME profile"
 echo "   • DNS rules only apply to that specific app instance"
 echo "   • You can run multiple browser apps simultaneously"
+echo "   • Use '$0 list' to see all your created apps"
 echo
