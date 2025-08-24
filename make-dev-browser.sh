@@ -75,6 +75,144 @@ echo
 # UTILITY FUNCTIONS
 # =============================================================================
 
+# =============================================================================
+# APP REGISTRY FUNCTIONS
+# =============================================================================
+
+# Function: get_registry_path
+# Purpose: Returns the path to the app registry file
+# Parameters: None
+# Returns: Prints the registry file path to stdout
+get_registry_path() {
+    local registry_dir="$HOME/.local/share/dev-browser-maker"
+    echo "$registry_dir/apps.json"
+}
+
+# Function: ensure_registry_exists
+# Purpose: Creates the registry file if it doesn't exist
+# Parameters: None
+# Returns: 0 on success, 1 on failure
+ensure_registry_exists() {
+    local registry_path
+    registry_path=$(get_registry_path)
+    local registry_dir
+    registry_dir=$(dirname "$registry_path")
+    
+    # Create registry directory if it doesn't exist
+    mkdir -p "$registry_dir"
+    
+    # Create empty registry if it doesn't exist
+    if [[ ! -f "$registry_path" ]]; then
+        echo '{"apps": []}' > "$registry_path"
+    fi
+}
+
+# Function: generate_app_id
+# Purpose: Generates a unique ID for an app based on name and timestamp
+# Parameters: $1 - App name
+# Returns: Prints the generated ID to stdout
+generate_app_id() {
+    local app_name="$1"
+    local timestamp=$(date +%s)
+    
+    # Create ID from app name and timestamp hash
+    # Replace spaces with dashes and convert to lowercase
+    local base_id=$(echo "$app_name" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | sed 's/[^a-z0-9-]//g')
+    echo "${base_id}-${timestamp}"
+}
+
+# Function: register_app
+# Purpose: Adds an app entry to the registry
+# Parameters: All app details as globals (APP_NAME, APP_BUNDLE, etc.)
+# Returns: 0 on success, 1 on failure
+register_app() {
+    local registry_path
+    registry_path=$(get_registry_path)
+    
+    ensure_registry_exists
+    
+    # Generate unique ID for this app
+    local app_id
+    app_id=$(generate_app_id "$APP_NAME")
+    
+    # Create timestamp in ISO 8601 format
+    local created_at
+    created_at=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    
+    # Convert DNS_RULES array to JSON format
+    local dns_rules_json="[]"
+    if [[ ${#DNS_RULES[@]} -gt 0 ]]; then
+        dns_rules_json="["
+        for i in "${!DNS_RULES[@]}"; do
+            local rule="${DNS_RULES[i]}"
+            local hostname=$(echo "$rule" | awk '{print $1}')
+            local ip=$(echo "$rule" | awk '{print $2}')
+            
+            if [[ $i -gt 0 ]]; then
+                dns_rules_json+=","
+            fi
+            dns_rules_json+="{\"hostname\":\"$hostname\",\"ip\":\"$ip\"}"
+        done
+        dns_rules_json+="]"
+    fi
+    
+    # Determine icon type
+    local icon_type="generated"
+    if [[ -n "$ICON_PATH" && -f "$ICON_PATH" ]]; then
+        icon_type="custom"
+    fi
+    
+    # Create new app entry JSON
+    local new_app_json=$(cat << EOF
+{
+  "id": "$app_id",
+  "name": "$APP_NAME",
+  "bundle_path": "$APP_BUNDLE",
+  "install_dir": "$INSTALL_DIR",
+  "profile_name": "$PROFILE_NAME", 
+  "browser_name": "$BROWSER_NAME",
+  "browser_exec_path": "$BROWSER_EXEC_PATH",
+  "dns_rules": $dns_rules_json,
+  "created_at": "$created_at",
+  "icon_type": "$icon_type"
+}
+EOF
+    )
+    
+    # Read current registry, add new app, and write back
+    # Using python3 for reliable JSON manipulation
+    python3 << EOF
+import json
+import sys
+
+try:
+    # Read current registry
+    with open("$registry_path", "r") as f:
+        registry = json.load(f)
+    
+    # Parse new app entry
+    new_app = json.loads('''$new_app_json''')
+    
+    # Add to registry
+    registry["apps"].append(new_app)
+    
+    # Write back to file
+    with open("$registry_path", "w") as f:
+        json.dump(registry, f, indent=2)
+    
+    print(f"✓ Registered app: {new_app['name']}")
+    sys.exit(0)
+        
+except Exception as e:
+    print(f"❌ Failed to register app: {e}", file=sys.stderr)
+    sys.exit(1)
+EOF
+}
+
+# =============================================================================
+# BROWSER DETECTION AND UTILITY FUNCTIONS  
+# =============================================================================
+
 # Function: validate_app_name
 # Purpose: Validates that app names don't contain problematic characters
 # Parameters: $1 - The app name to validate
@@ -532,6 +670,14 @@ fi
 
 echo "   ✓ App bundle created: $APP_BUNDLE"
 echo "   ✓ Profile location: ~/$PROFILE_DIR_NAME/$PROFILE_NAME"
+
+# Register the app in the registry
+echo "   📝 Registering app..."
+if register_app; then
+    echo "   ✓ App registered in registry"
+else
+    echo "   ⚠️  Failed to register app (app will still work)"
+fi
 
 # Test the app
 echo
