@@ -61,11 +61,12 @@ else
     echo "✅ No dangerous eval/system calls found"
 fi
 
-# Check for hardcoded secrets (basic check)
-if grep -ni "password\|secret\|key.*=" dev-browser | grep -v "#"; then
+# Check for hardcoded secrets (exclude plist keys, comments)
+if grep -i "password.*=\|secret.*=\|api_key.*=\|auth.*token.*=" dev-browser | grep -v "# " | grep -v "echo"; then
     echo "⚠️  Potential hardcoded secrets found - please review"
+    exit 1
 else
-    echo "✅ No obvious hardcoded secrets"
+    echo "✅ No hardcoded secrets found"
 fi
 
 echo ""

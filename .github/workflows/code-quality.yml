@@ -53,8 +53,8 @@ jobs:
           echo "✅ No dangerous backtick usage found in main script"
         fi
         
-        # Check for hardcoded secrets in main script (exclude test files and comments)
-        if grep -i "password\|secret\|key\|token" dev-browser | grep -v "# " | grep -v "echo"; then
+        # Check for hardcoded secrets in main script (exclude plist keys, comments, and echo statements)
+        if grep -i "password.*=\|secret.*=\|api_key.*=\|auth.*token.*=" dev-browser | grep -v "# " | grep -v "echo"; then
           echo "⚠️  Potential hardcoded secrets found in main script"
           exit 1
         else
