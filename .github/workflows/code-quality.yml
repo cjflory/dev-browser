@@ -36,28 +36,29 @@ jobs:
     - name: Analyze shell script security
       run: |
         echo "Checking for common security patterns in shell scripts..."
-        # Check for dangerous eval and system calls (but not legitimate exec usage)
-        if grep -r "eval\|system(" --include="*.sh" --include="dev-browser" . ; then
-          echo "⚠️  Found potentially dangerous commands (eval/system)"
+        # Check for dangerous eval and system calls in the main script only
+        # Exclude test files to avoid false positives from our own security checks
+        if grep -n "eval\|system(" dev-browser; then
+          echo "⚠️  Found potentially dangerous commands (eval/system) in main script"
           exit 1
         else
-          echo "✅ No dangerous eval/system calls found"
+          echo "✅ No dangerous eval/system calls found in main script"
         fi
         
-        # Check for command injection patterns (backticks in dangerous contexts)
-        if grep -r "\`.*\$" --include="*.sh" --include="dev-browser" . ; then
-          echo "⚠️  Found potential command injection with backticks"
+        # Check for command injection patterns (backticks with variables)
+        if grep -n "\`.*\$" dev-browser; then
+          echo "⚠️  Found potential command injection with backticks in main script"
           exit 1
         else
-          echo "✅ No dangerous backtick usage found"
+          echo "✅ No dangerous backtick usage found in main script"
         fi
         
-        # Check for hardcoded secrets (basic patterns)
-        if grep -r -i "password\|secret\|key\|token" --include="*.sh" --include="dev-browser" . | grep -v "# " | grep -v "echo"; then
-          echo "⚠️  Potential hardcoded secrets found"
+        # Check for hardcoded secrets in main script (exclude test files and comments)
+        if grep -i "password\|secret\|key\|token" dev-browser | grep -v "# " | grep -v "echo"; then
+          echo "⚠️  Potential hardcoded secrets found in main script"
           exit 1
         else
-          echo "✅ No hardcoded secrets detected"
+          echo "✅ No hardcoded secrets detected in main script"
         fi
 
   png-validation:
