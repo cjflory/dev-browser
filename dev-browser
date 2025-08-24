@@ -27,7 +27,7 @@ show_help() {
     echo ""
     echo "📝 Usage: $0 <command> [options]"
     echo ""
-    echo "⚙️  Commands:"
+    echo "⚙️ Commands:"
     echo "  install            Install dev-browser from GitHub"
     echo "  uninstall          Uninstall dev-browser from system"
     echo "  create             Create a new browser app (interactive)"
