@@ -18,7 +18,7 @@
 set -e
 
 # Version information
-VERSION="2.0.0"
+VERSION="2.1.0"
 
 # Function to display help information
 show_help() {
@@ -168,10 +168,10 @@ register_app() {
     echo -e "${app_id}\t${safe_name}\t${safe_bundle_path}\t${safe_install_dir}\t${safe_profile_name}\t${safe_browser_name}\t${safe_browser_exec_path}\t${dns_rules_str}\t${created_at}\t${icon_type}" >> "$registry_path"
     
     if [[ $? -eq 0 ]]; then
-        echo "✓ Registered app: $APP_NAME"
+        echo "Registered app: $APP_NAME"
         return 0
     else
-        echo "❌ Failed to register app" >&2
+        echo "Failed to register app" >&2
         return 1
     fi
 }
@@ -186,8 +186,8 @@ list_apps() {
     
     # Check if registry exists
     if [[ ! -f "$registry_path" ]]; then
-        echo "📱 No browser apps found."
-        echo "   Create your first app by running: $0 create"
+        echo "No browser apps found."
+        echo "Create your first app by running: $0 create"
         return 0
     fi
     
@@ -196,13 +196,13 @@ list_apps() {
     app_count=$(tail -n +2 "$registry_path" | wc -l | tr -d ' ')
     
     if [[ $app_count -eq 0 ]]; then
-        echo "📱 No browser apps found."
-        echo "   Create your first app by running: $0 create"
+        echo "No browser apps found."
+        echo "Create your first app by running: $0 create"
         return 0
     fi
     
     # Header
-    echo "📱 Found $app_count browser app$([ $app_count -ne 1 ] && echo "s"):"
+    echo "Found $app_count browser app$([ $app_count -ne 1 ] && echo "s"):"
     echo
     
     # Read and display each app (skip header line)
@@ -257,8 +257,8 @@ list_apps() {
     done
     
     # Footer info
-    echo "💡 Tips:"
-    echo "   • Use the app ID to remove apps with: $0 remove <app-id>"
+    echo "Tips:"
+    echo "   • Use app ID to remove: $0 remove <app-id>"
     echo "   • Apps with ❌ may have been manually deleted"
 }
 
@@ -291,7 +291,7 @@ remove_app() {
     IFS=$'\t' read -r id name bundle_path install_dir profile_name browser_name browser_exec_path dns_rules created_at icon_type <<< "$app_line"
     
     # Show what will be removed
-    echo "🗑️  Removing browser app: $name"
+    echo "Removing browser app: $name"
     echo "   ID: $id"
     echo "   Bundle: $bundle_path"
     echo "   Profile: ~/chrome-profiles/$profile_name"
@@ -307,32 +307,31 @@ remove_app() {
     
     # Remove app bundle if it exists
     if [[ -e "$bundle_path" ]]; then
-        echo "   🗂️  Removing app bundle..."
         if rm -rf "$bundle_path"; then
-            echo "   ✅ App bundle removed: $bundle_path"
+            echo "   App bundle removed: $bundle_path"
         else
-            echo "   ⚠️  Failed to remove app bundle: $bundle_path"
+            echo "   Failed to remove app bundle: $bundle_path"
         fi
     else
-        echo "   ⚠️  App bundle not found (may have been manually deleted)"
+        echo "   App bundle not found (may have been manually deleted)"
     fi
     
     # Ask about profile cleanup
     local profile_dir="$HOME/chrome-profiles/$profile_name"
     if [[ -d "$profile_dir" ]]; then
         echo
-        echo "🗂️  Browser profile directory found: $profile_dir"
-        echo "   This contains browser data like bookmarks, saved passwords, history, etc."
+        echo "Browser profile found: $profile_dir"
+        echo "   Contains browser data (bookmarks, passwords, history, etc.)"
         read -p "Remove profile directory? (y/N): " -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             if rm -rf "$profile_dir"; then
-                echo "   ✅ Profile directory removed: $profile_dir"
+                echo "   Profile directory removed: $profile_dir"
             else
-                echo "   ⚠️  Failed to remove profile directory: $profile_dir"
+                echo "   Failed to remove profile directory: $profile_dir"
             fi
         else
-            echo "   📁 Profile directory preserved: $profile_dir"
+            echo "   Profile directory preserved: $profile_dir"
         fi
     fi
     
@@ -347,11 +346,11 @@ remove_app() {
     
     # Replace registry file
     if mv "$temp_registry" "$registry_path"; then
-        echo "   ✅ Removed from registry"
+        echo "   Removed from registry"
         echo
-        echo "🎉 Successfully removed browser app: $name"
+        echo "✅ Successfully removed browser app: $name"
     else
-        echo "   ❌ Failed to update registry"
+        echo "   Failed to update registry"
         rm -f "$temp_registry"
         return 1
     fi
@@ -821,7 +820,7 @@ esac
 # =============================================================================
 
 # Display welcome message for create mode
-echo "🚀 Dev Browser v${VERSION} - Create Mode"
+echo "Dev Browser v${VERSION} - Create Mode"
 echo "====================================="
 echo
 
@@ -830,9 +829,8 @@ select_browser
 echo
 
 # Step 2: Ask where to place browser shortcuts
-echo "📁 Where would you like to place your browser shortcuts?"
-echo "   Default: ~/dev-browsers"
-read -p "   Installation directory (press Enter for default): " INSTALL_DIR
+echo "Installation directory (default: ~/dev-browsers):"
+read -p "   Press Enter for default or specify path: " INSTALL_DIR
 
 # If user just pressed Enter, use the default
 if [[ -z "$INSTALL_DIR" ]]; then
@@ -844,12 +842,12 @@ fi
 
 # Create the installation directory if it doesn't exist
 mkdir -p "$INSTALL_DIR"
-echo "✓ Using installation directory: $INSTALL_DIR"
+echo "Using directory: $INSTALL_DIR"
 echo
 
 # Step 3: Get app name from user (with validation)
 while true; do
-    read -p "📱 App name (e.g., 'Chrome Dev'): " APP_NAME
+    read -p "App name (e.g., 'Chrome Dev'): " APP_NAME
     
     # Validate the app name to ensure it won't break filesystem operations
     if validate_app_name "$APP_NAME"; then
@@ -864,9 +862,8 @@ done
 # This provides a good default while allowing customization
 SUGGESTED_PROFILE=$(suggest_profile_name "$APP_NAME")
 
-echo "📁 Profile directory name:"
-echo "   Suggested: '$SUGGESTED_PROFILE' (press Enter to use this)"
-read -p "   Or enter custom name: " PROFILE_NAME
+echo "Profile name (suggested: '$SUGGESTED_PROFILE'):"
+read -p "   Press Enter for suggested or specify custom: " PROFILE_NAME
 
 # If user just pressed Enter, use the suggested name
 if [[ -z "$PROFILE_NAME" ]]; then
@@ -875,8 +872,8 @@ fi
 
 # Step 4: Collect DNS mapping rules from user
 echo
-echo "🌐 DNS Mapping Rules"
-echo "Enter hostname to IP mappings (one per line)."
+echo "DNS Mapping Rules:"
+echo "Enter hostname to IP mappings (one per line)"
 echo "Format: hostname ip (e.g., example.com 192.168.1.100)"
 echo "Press Enter twice when done:"
 
@@ -912,24 +909,24 @@ done
 
 # Optional: Custom icon
 echo
-read -p "🎨 Custom icon path (optional, press Enter to skip): " ICON_PATH
+read -p "Custom icon path (optional): " ICON_PATH
 
 # Show summary
 echo
-echo "📋 Summary:"
-echo "   App Name: $APP_NAME"
-echo "   Install Location: $INSTALL_DIR/$APP_NAME.app"
+echo "Summary:"
+echo "   App: $APP_NAME"
+echo "   Location: $INSTALL_DIR/$APP_NAME.app"
 echo "   Profile: chrome-profiles/$PROFILE_NAME"
 echo "   DNS Rules: ${#DNS_RULES[@]} rule(s)"
 for rule in "${DNS_RULES[@]}"; do
-    echo "     - $rule"
+    echo "     $rule"
 done
 if [[ -n "$ICON_PATH" ]]; then
     echo "   Icon: $ICON_PATH"
 fi
 
 echo
-read -p "✅ Create app? (Y/n): " confirm
+read -p "Create app? (Y/n): " confirm
 if [[ "$confirm" =~ ^[Nn]$ ]]; then
     echo "Cancelled."
     exit 0
@@ -942,7 +939,7 @@ MACOS_DIR="$APP_DIR/MacOS"
 RESOURCES_DIR="$APP_DIR/Resources"
 
 echo
-echo "🔨 Creating app bundle..."
+echo "Creating app bundle..."
 
 # Create directory structure
 mkdir -p "$MACOS_DIR" "$RESOURCES_DIR"
@@ -1031,13 +1028,13 @@ EOF
 if [[ -n "$ICON_PATH" && -f "$ICON_PATH" ]]; then
     # Use custom icon provided by user
     cp "$ICON_PATH" "$RESOURCES_DIR/icon.icns"
-    echo "   ✓ Custom icon added"
+    echo "   Custom icon added"
 else
     # Generate random icon from available PNG icons
     if generate_random_icon "$RESOURCES_DIR/icon.icns" "$APP_NAME"; then
-        echo "   ✓ Random icon generated"
+        echo "   Random icon generated"
     else
-        echo "   ⚠️  Could not generate icon (using default)"
+        echo "   Could not generate icon (using default)"
     fi
 fi
 
@@ -1049,37 +1046,29 @@ if [[ -f "$RESOURCES_DIR/icon.icns" ]]; then
 ' "$APP_DIR/Info.plist"
 fi
 
-echo "   ✓ App bundle created: $APP_BUNDLE"
-echo "   ✓ Profile location: ~/$PROFILE_DIR_NAME/$PROFILE_NAME"
+echo "   App bundle created: $APP_BUNDLE"
+echo "   Profile location: ~/$PROFILE_DIR_NAME/$PROFILE_NAME"
 
 # Register the app in the registry
-echo "   📝 Registering app..."
 if register_app; then
-    echo "   ✓ App registered in registry"
+    echo "   Registered in app registry"
 else
-    echo "   ⚠️  Failed to register app (app will still work)"
+    echo "   Failed to register app (app will still work)"
 fi
 
 # Test the app
 echo
-echo "🧪 Testing app..."
 if [[ -f "$BROWSER_EXEC_PATH" ]]; then
-    echo "   ✓ $BROWSER_NAME found"
-    echo "   ✓ App bundle structure is valid"
+    echo "✅ Success! Your custom $BROWSER_NAME app is ready."
 else
-    echo "   ⚠️  $BROWSER_NAME not found - app will work once $BROWSER_NAME is installed"
-    echo "   ✓ App bundle structure is valid"
+    echo "App created successfully. Install $BROWSER_NAME to use it."
 fi
 
+echo "   App: $APP_BUNDLE"
+echo "   Double-click to launch or drag to Applications/Dock"
 echo
-echo "🎉 Success! Your custom $BROWSER_NAME app is ready:"
-echo "   📱 App: $APP_BUNDLE"
-echo "   🚀 Double-click to launch"
-echo "   📱 Drag to Applications folder or Dock for easy access"
-echo
-echo "💡 Tips:"
-echo "   • Each app uses a separate $BROWSER_NAME profile"
-echo "   • DNS rules only apply to that specific app instance"
-echo "   • You can run multiple browser apps simultaneously"
-echo "   • Use '$0 list' to see all your created apps"
+echo "Tips:"
+echo "   • Each app uses a separate browser profile"
+echo "   • DNS rules only apply to that specific app"
+echo "   • Use '$0 list' to see all your apps"
 echo
