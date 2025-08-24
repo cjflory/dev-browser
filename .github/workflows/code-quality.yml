@@ -48,11 +48,20 @@ jobs:
     - name: Analyze shell script security
       run: |
         echo "Checking for common security patterns in shell scripts..."
-        # Check for common security issues
-        if grep -r "eval\|system\|exec\|\`" --include="*.sh" --include="dev-browser" . ; then
-          echo "⚠️  Found potentially dangerous commands"
+        # Check for dangerous eval and system calls (but not legitimate exec usage)
+        if grep -r "eval\|system(" --include="*.sh" --include="dev-browser" . ; then
+          echo "⚠️  Found potentially dangerous commands (eval/system)"
+          exit 1
         else
-          echo "✅ No obvious security issues found"
+          echo "✅ No dangerous eval/system calls found"
+        fi
+        
+        # Check for command injection patterns (backticks in dangerous contexts)
+        if grep -r "\`.*\$" --include="*.sh" --include="dev-browser" . ; then
+          echo "⚠️  Found potential command injection with backticks"
+          exit 1
+        else
+          echo "✅ No dangerous backtick usage found"
         fi
         
         # Check for hardcoded secrets (basic patterns)

@@ -53,11 +53,12 @@ fi
 
 echo ""
 echo "🔍 Basic security checks..."
-# Check for potentially dangerous patterns
-if grep -n "eval\|system(\|exec(" dev-browser; then
-    echo "⚠️  Found potentially dangerous commands - please review"
+# Check for dangerous eval and system calls (but not legitimate exec usage)
+if grep -n "eval\|system(" dev-browser; then
+    echo "⚠️  Found potentially dangerous commands (eval/system)"
+    exit 1
 else
-    echo "✅ No dangerous commands found"
+    echo "✅ No dangerous eval/system calls found"
 fi
 
 # Check for hardcoded secrets (basic check)
