@@ -1,18 +1,13 @@
 # ShellCheck configuration for dev-browser
 # See: https://github.com/koalaman/shellcheck/wiki
 
-# Disable specific rules that don't apply to our use case
+# Only disable rules that are genuinely not applicable to our use case
 disable=SC1091  # Not following sourced files (we don't source external files)
-disable=SC2034  # Unused variables (some variables are used in generated scripts)
-disable=SC2086  # Double quote to prevent globbing (intentional in some cases)
-disable=SC2250  # Style preference for braces around variables (too noisy)
-disable=SC2155  # Declare and assign separately (acceptable for simple cases)
-disable=SC2310  # Function invocation in if condition (acceptable pattern)
-disable=SC2311  # Set -e disabled in command substitution (acceptable)
-disable=SC2312  # Consider invoking command separately (acceptable for simple cases)
-disable=SC2162  # read without -r (we've fixed the important ones)
+disable=SC2034  # Unused variables (some are used in generated scripts)
+disable=SC2155  # Declare and assign separately (acceptable for simple variable assignments)
+disable=SC2086  # Double quote to prevent globbing (intentional in some cases like sips command)
 
-# Set shell dialect
+# Set shell dialect  
 shell=bash
 
 # Exclude certain directories from analysis
