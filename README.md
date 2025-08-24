@@ -5,7 +5,7 @@
 [![Shell: Bash](https://img.shields.io/badge/Shell-Bash-green.svg)](https://www.gnu.org/software/bash/)
 [![Version: 2.0.0](https://img.shields.io/badge/Version-2.0.0-red.svg)](https://github.com/cjflory/dev-browser)
 
-A development tool that creates custom browser apps with DNS override rules, allowing developers to redirect specific hostnames to different IP addresses for local development and testing.
+A development tool that creates custom browser shortcuts with DNS override rules, allowing developers to redirect specific hostnames to different IP addresses for local development and testing.
 
 ## Requirements
 
