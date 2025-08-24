@@ -166,7 +166,8 @@ register_app() {
     
     # Append new app entry to registry file
     if echo -e "${app_id}\t${safe_name}\t${safe_bundle_path}\t${safe_install_dir}\t${safe_profile_name}\t${safe_browser_name}\t${safe_browser_exec_path}\t${dns_rules_str}\t${created_at}\t${icon_type}" >> "$registry_path"; then
-        echo "Registered app: $APP_NAME"
+        echo
+        echo "📝 Registered app: $APP_NAME"
         return 0
     else
         echo "Failed to register app" >&2
@@ -185,6 +186,7 @@ list_apps() {
     # Check if registry exists
     if [[ ! -f "$registry_path" ]]; then
         echo "📭 No browser apps found."
+        echo
         echo "Create your first app by running: $0 create"
         return 0
     fi
@@ -195,6 +197,7 @@ list_apps() {
     
     if [[ $app_count -eq 0 ]]; then
         echo "📭 No browser apps found."
+        echo
         echo "Create your first app by running: $0 create"
         return 0
     fi
@@ -255,7 +258,7 @@ list_apps() {
     done
     
     # Footer info
-    echo "Tips:"
+    echo "💡 Tips:"
     echo "   • Use app ID to remove: $0 remove <app-id>"
     echo "   • Apps with ❌ may have been manually deleted"
 }
@@ -925,7 +928,7 @@ if [[ -n "$ICON_PATH" ]]; then
 fi
 
 echo
-read -r -p "Create app? (Y/n): " confirm
+read -r -p "🚀 Create app? (Y/n): " confirm
 if [[ "$confirm" =~ ^[Nn]$ ]]; then
     echo "Cancelled."
     exit 0
@@ -1050,7 +1053,7 @@ echo "   Profile location: ~/$PROFILE_DIR_NAME/$PROFILE_NAME"
 
 # Register the app in the registry
 if register_app; then
-    echo "   Registered in app registry"
+    echo "   📝 Registered in app registry"
 else
     echo "   Failed to register app (app will still work)"
 fi
@@ -1066,7 +1069,7 @@ fi
 echo "   App: $APP_BUNDLE"
 echo "   Double-click to launch or drag to Applications/Dock"
 echo
-echo "Tips:"
+echo "💡 Tips:"
 echo "   • Each app uses a separate browser profile"
 echo "   • DNS rules only apply to that specific app"
 echo "   • Use '$0 list' to see all your apps"
