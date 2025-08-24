@@ -715,8 +715,8 @@ footer {
     
     .step-content {
         text-align: center;
-        width: 100%;
-        flex: none;
+        width: 100% !important;
+        flex: none !important;
         max-width: 100%;
         box-sizing: border-box;
     }
