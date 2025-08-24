@@ -1,0 +1,16 @@
+# ShellCheck configuration for dev-browser
+# See: https://github.com/koalaman/shellcheck/wiki
+
+# Only disable rules that are genuinely not applicable to our use case
+disable=SC1091  # Not following sourced files (we don't source external files)
+disable=SC2034  # Unused variables (some are used in generated scripts)
+disable=SC2155  # Declare and assign separately (acceptable for simple variable assignments)
+disable=SC2086  # Double quote to prevent globbing (intentional in some cases like sips command)
+
+# Set shell dialect  
+shell=bash
+
+# Exclude certain directories from analysis
+exclude-dir=.git
+exclude-dir=node_modules
+exclude-dir=.github
