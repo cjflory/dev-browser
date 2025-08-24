@@ -25,9 +25,9 @@ show_help() {
     echo "🔨 Dev Browser v${VERSION}"
     echo "Creates custom browser apps with DNS override rules for development"
     echo ""
-    echo "Usage: $0 <command> [options]"
+    echo "📝 Usage: $0 <command> [options]"
     echo ""
-    echo "Commands:"
+    echo "⚙️ Commands:"
     echo "  install            Install dev-browser from GitHub"
     echo "  uninstall          Uninstall dev-browser from system"
     echo "  create             Create a new browser app (interactive)"
@@ -36,7 +36,7 @@ show_help() {
     echo "  help               Show this help message"
     echo "  version            Show version information"
     echo ""
-    echo "Examples:"
+    echo "💡 Examples:"
     echo "  $0 install             # Install from GitHub"
     echo "  $0 create              # Create new browser app"
     echo "  $0 list                # List created apps"
@@ -46,7 +46,7 @@ show_help() {
 
 # Function to display version information
 show_version() {
-    echo "Dev Browser v${VERSION}"
+    echo "🔨 Dev Browser v${VERSION}"
 }
 
 # Colors for output
@@ -289,14 +289,14 @@ remove_app() {
     IFS=$'\t' read -r id name bundle_path install_dir profile_name browser_name browser_exec_path dns_rules created_at icon_type <<< "$app_line"
     
     # Show what will be removed
-    echo "Removing browser app: $name"
+    echo "🗑️ Removing browser app: $name"
     echo "   ID: $id"
     echo "   Bundle: $bundle_path"
     echo "   Profile: ~/chrome-profiles/$profile_name"
     echo
     
     # Confirmation
-    read -p "Are you sure you want to remove this app? (y/N): " -n 1 -r || true
+    read -p "⚠️ Are you sure you want to remove this app? (y/N): " -n 1 -r || true
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         echo "Removal cancelled."
@@ -500,7 +500,7 @@ generate_random_icon() {
     
     # Verify that the icons directory exists
     if [[ ! -d "$icons_dir" ]]; then
-        echo "⚠️  Icons directory not found: $icons_dir"
+        echo "⚠️ Icons directory not found: $icons_dir"
         return 1  # Return error code
     fi
     
@@ -511,7 +511,7 @@ generate_random_icon() {
     # Check if any PNG files were actually found
     # If no files match, the glob returns the literal string "*.png"
     if [[ ! -f "${icon_files[0]}" ]]; then
-        echo "⚠️  No PNG icons found in: $icons_dir"
+        echo "⚠️ No PNG icons found in: $icons_dir"
         return 1
     fi
     
@@ -800,9 +800,10 @@ case "${1:-}" in
         exit 0
         ;;
     
-    # No arguments - default to create mode
+    # No arguments - default to help
     "")
-        # Continue to interactive create mode
+        show_help
+        exit 0
         ;;
     
     # Unknown arguments
@@ -845,7 +846,7 @@ echo
 
 # Step 3: Get app name from user (with validation)
 while true; do
-    read -r -p "🏷️  App name (e.g., 'Chrome Dev'): " APP_NAME
+    read -r -p "🏷️ App name (e.g., 'Chrome Dev'): " APP_NAME
     
     # Validate the app name to ensure it won't break filesystem operations
     if validate_app_name "$APP_NAME"; then
@@ -907,7 +908,7 @@ done
 
 # Optional: Custom icon
 echo
-read -r -p "Custom icon path (optional): " ICON_PATH
+read -r -p "🖼️ Custom icon path (optional): " ICON_PATH
 
 # Show summary
 echo
