@@ -28,19 +28,21 @@ show_help() {
     echo "Usage: $0 [OPTIONS]"
     echo ""
     echo "Options:"
-    echo "  -h, --help     Show this help message"
-    echo "  -v, --version  Show version information"
-    echo "  -l, --list     List all created browser apps"
+    echo "  -h, --help         Show this help message"
+    echo "  -v, --version      Show version information"
+    echo "  -l, --list         List all created browser apps"
+    echo "  -r, --remove ID    Remove a browser app by ID"
     echo ""
     echo "Interactive mode (no options):"
     echo "  The script will guide you through creating a custom browser app"
     echo "  with DNS rules to redirect hostnames to specific IP addresses."
     echo ""
     echo "Examples:"
-    echo "  $0              # Run in interactive mode"
-    echo "  $0 --help       # Show this help"
-    echo "  $0 --version    # Show version"
-    echo "  $0 --list       # List created apps"
+    echo "  $0                    # Run in interactive mode"
+    echo "  $0 --help             # Show this help"
+    echo "  $0 --version          # Show version"
+    echo "  $0 --list             # List created apps"
+    echo "  $0 --remove app-id    # Remove app by ID"
 }
 
 # Function to display version information
@@ -245,8 +247,103 @@ list_apps() {
     
     # Footer info
     echo "💡 Tips:"
-    echo "   • Use the app ID to remove apps (coming soon)"
+    echo "   • Use the app ID to remove apps with: $0 --remove <app-id>"
     echo "   • Apps with ❌ may have been manually deleted"
+}
+
+# Function: remove_app
+# Purpose: Remove a browser app by ID, with optional profile cleanup
+# Parameters: $1 - App ID to remove
+# Returns: 0 on success, 1 on error
+remove_app() {
+    local app_id="$1"
+    local registry_path
+    registry_path=$(get_registry_path)
+    
+    # Check if registry exists
+    if [[ ! -f "$registry_path" ]]; then
+        echo "❌ No browser apps found to remove."
+        return 1
+    fi
+    
+    # Search for app in registry
+    local app_line
+    app_line=$(tail -n +2 "$registry_path" | grep "^${app_id}"$'\t')
+    
+    if [[ -z "$app_line" ]]; then
+        echo "❌ App with ID '$app_id' not found."
+        echo "   Use '$0 --list' to see available app IDs"
+        return 1
+    fi
+    
+    # Parse app details
+    IFS=$'\t' read -r id name bundle_path install_dir profile_name browser_name browser_exec_path dns_rules created_at icon_type <<< "$app_line"
+    
+    # Show what will be removed
+    echo "🗑️  Removing browser app: $name"
+    echo "   ID: $id"
+    echo "   Bundle: $bundle_path"
+    echo "   Profile: ~/chrome-profiles/$profile_name"
+    echo
+    
+    # Confirmation
+    read -p "Are you sure you want to remove this app? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Removal cancelled."
+        return 0
+    fi
+    
+    # Remove app bundle if it exists
+    if [[ -e "$bundle_path" ]]; then
+        echo "   🗂️  Removing app bundle..."
+        if rm -rf "$bundle_path"; then
+            echo "   ✅ App bundle removed: $bundle_path"
+        else
+            echo "   ⚠️  Failed to remove app bundle: $bundle_path"
+        fi
+    else
+        echo "   ⚠️  App bundle not found (may have been manually deleted)"
+    fi
+    
+    # Ask about profile cleanup
+    local profile_dir="$HOME/chrome-profiles/$profile_name"
+    if [[ -d "$profile_dir" ]]; then
+        echo
+        echo "🗂️  Browser profile directory found: $profile_dir"
+        echo "   This contains browser data like bookmarks, saved passwords, history, etc."
+        read -p "Remove profile directory? (y/N): " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            if rm -rf "$profile_dir"; then
+                echo "   ✅ Profile directory removed: $profile_dir"
+            else
+                echo "   ⚠️  Failed to remove profile directory: $profile_dir"
+            fi
+        else
+            echo "   📁 Profile directory preserved: $profile_dir"
+        fi
+    fi
+    
+    # Remove from registry (create temp file without the app line)
+    local temp_registry=$(mktemp)
+    
+    # Copy header
+    head -n 1 "$registry_path" > "$temp_registry"
+    
+    # Copy all lines except the one with matching app ID
+    tail -n +2 "$registry_path" | grep -v "^${app_id}"$'\t' >> "$temp_registry"
+    
+    # Replace registry file
+    if mv "$temp_registry" "$registry_path"; then
+        echo "   ✅ Removed from registry"
+        echo
+        echo "🎉 Successfully removed browser app: $name"
+    else
+        echo "   ❌ Failed to update registry"
+        rm -f "$temp_registry"
+        return 1
+    fi
 }
 
 # =============================================================================
@@ -496,6 +593,15 @@ case "${1:-}" in
         ;;
     -l|--list)
         list_apps
+        exit 0
+        ;;
+    -r|--remove)
+        if [[ -z "${2:-}" ]]; then
+            echo "Error: --remove requires an app ID"
+            echo "Use '$0 --list' to see available app IDs"
+            exit 1
+        fi
+        remove_app "$2"
         exit 0
         ;;
     "")
