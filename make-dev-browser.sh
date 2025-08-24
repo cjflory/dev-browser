@@ -33,8 +33,8 @@ show_help() {
     echo "  create             Create a new browser app (interactive)"
     echo "  list               List all created browser apps"
     echo "  remove <app-id>    Remove a browser app by ID"
-    echo "  help, --help       Show this help message"
-    echo "  version, --version Show version information"
+    echo "  help               Show this help message"
+    echo "  version            Show version information"
     echo ""
     echo "Examples:"
     echo "  $0 install             # Install from GitHub"
@@ -42,12 +42,6 @@ show_help() {
     echo "  $0 list                # List created apps"
     echo "  $0 remove app-id       # Remove app by ID"
     echo "  $0 uninstall           # Uninstall from system"
-    echo ""
-    echo "Legacy flags (deprecated):"
-    echo "  -h, --help             Same as: help"
-    echo "  -v, --version          Same as: version"
-    echo "  -l, --list             Same as: list"
-    echo "  -r, --remove ID        Same as: remove ID"
 }
 
 # Function to display version information
@@ -800,30 +794,13 @@ case "${1:-}" in
         remove_app "$2"
         exit $?
         ;;
-    help|--help|-h)
+    help)
         show_help
         exit 0
         ;;
-    version|--version|-v)
+    version)
         show_version
         exit 0
-        ;;
-    
-    # Legacy flag interface (deprecated but maintained for compatibility)
-    -l|--list)
-        print_warning "Flag '-l/--list' is deprecated. Use: $0 list"
-        list_apps
-        exit $?
-        ;;
-    -r|--remove)
-        print_warning "Flag '-r/--remove' is deprecated. Use: $0 remove <app-id>"
-        if [[ -z "${2:-}" ]]; then
-            echo "Error: --remove requires an app ID"
-            echo "Use '$0 list' to see available app IDs"
-            exit 1
-        fi
-        remove_app "$2"
-        exit $?
         ;;
     
     # No arguments - default to create mode
