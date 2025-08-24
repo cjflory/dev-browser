@@ -235,20 +235,27 @@ code {
 
 .copy-btn {
     position: absolute;
-    top: 15px;
-    right: 15px;
-    background: #4a5568;
+    top: 5px;
+    right: 5px;
+    background: transparent;
     color: white;
     border: none;
-    padding: 5px 12px;
-    border-radius: 5px;
+    padding: 4px 10px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 0.8rem;
-    transition: background 0.2s ease;
+    font-size: 0.75rem;
+    opacity: 0.4;
+    transition: all 0.3s ease;
+}
+
+.code-block:hover .copy-btn {
+    background: #4a5568;
+    opacity: 1;
 }
 
 .copy-btn:hover {
     background: #2d3748;
+    opacity: 1;
 }
 
 /* Features Section */
