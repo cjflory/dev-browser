@@ -16,7 +16,7 @@
                 <div class="badges">
                     <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT License">
                     <img src="https://img.shields.io/badge/Platform-macOS-blue.svg" alt="macOS Platform">
-                    <img src="https://img.shields.io/badge/Version-2.1.0-red.svg" alt="Version 2.1.0">
+                    <img src="https://img.shields.io/badge/Version-2.2.0-red.svg" alt="Version 2.2.0">
                 </div>
                 <div class="cta-buttons">
                     <a href="#install" class="btn btn-primary">Get Started</a>
@@ -186,25 +186,27 @@ chmod +x dev-browser<br>
 
         <section class="example">
             <div class="container">
-                <h2>📝 Example Usage</h2>
+                <h2>📝 Example Commands</h2>
                 <div class="terminal">
                     <div class="terminal-header">
-                        <span class="terminal-title">Terminal</span>
+                        <span class="terminal-title">Common Commands</span>
                     </div>
                     <div class="terminal-content">
-                        <div class="terminal-line">$ dev-browser create</div>
-                        <div class="terminal-line">Using detected browser: Brave Browser</div>
-                        <div class="terminal-line">App name: Dev Environment</div>
-                        <div class="terminal-line">DNS Mapping Rules:</div>
-                        <div class="terminal-line">   example.com 192.168.1.100</div>
-                        <div class="terminal-line">   api.example.com 192.168.1.101</div>
-                        <div class="terminal-line">✅ Success! Your custom Brave Browser app is ready.</div>
-                        <div class="terminal-line">   App: ~/dev-browsers/Dev Environment.app</div>
+                        <div class="terminal-line comment"># Create a custom browser app with DNS rules</div>
+                        <div class="terminal-line">dev-browser create</div>
+                        <div class="terminal-line">&nbsp;</div>
+                        <div class="terminal-line comment"># List all your created browser apps</div>
+                        <div class="terminal-line">dev-browser list</div>
+                        <div class="terminal-line">&nbsp;</div>
+                        <div class="terminal-line comment"># Remove a specific app by ID</div>
+                        <div class="terminal-line">dev-browser remove &lt;app-id&gt;</div>
+                        <div class="terminal-line">&nbsp;</div>
+                        <div class="terminal-line comment"># Show help and all available commands</div>
+                        <div class="terminal-line">dev-browser help</div>
                     </div>
                 </div>
                 <p class="example-description">
-                    This creates a Brave Browser app that redirects <code>example.com</code> to your local development server 
-                    and <code>api.example.com</code> to your local API server, all with a separate browser profile.
+                    These are the main commands you'll use to create, manage, and remove your custom browser apps.
                 </p>
             </div>
         </section>

@@ -490,16 +490,24 @@ code {
 .terminal-content {
     padding: 25px;
     font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    overflow-x: auto;
 }
 
 .terminal-line {
     color: #e2e8f0;
     margin-bottom: 8px;
     line-height: 1.5;
+    white-space: nowrap;
 }
 
 .terminal-line:first-child {
     color: #81c784;
+}
+
+/* Comment lines in terminal - less prominent than commands */
+.terminal-line.comment {
+    color: #94a3b8 !important;
+    opacity: 0.8;
 }
 
 .example-description {
@@ -631,6 +639,14 @@ footer {
     box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
 }
 
+@media (max-width: 768px) {
+    .step-content {
+        width: 100%;
+        flex: none;
+        text-align: left;
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .hero h1 {
@@ -705,10 +721,6 @@ footer {
         white-space: nowrap;
     }
     
-    .step-content {
-        text-align: center;
-        width: 100%;
-    }
     
     .step-content .code-block {
         text-align: left;
@@ -742,4 +754,5 @@ footer {
     h2 {
         font-size: 2rem !important;
     }
+}
 }
