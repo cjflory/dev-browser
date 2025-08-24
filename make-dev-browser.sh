@@ -30,6 +30,7 @@ show_help() {
     echo "Options:"
     echo "  -h, --help     Show this help message"
     echo "  -v, --version  Show version information"
+    echo "  -l, --list     List all created browser apps"
     echo ""
     echo "Interactive mode (no options):"
     echo "  The script will guide you through creating a custom browser app"
@@ -39,6 +40,7 @@ show_help() {
     echo "  $0              # Run in interactive mode"
     echo "  $0 --help       # Show this help"
     echo "  $0 --version    # Show version"
+    echo "  $0 --list       # List created apps"
 }
 
 # Function to display version information
@@ -46,30 +48,12 @@ show_version() {
     echo "Dev Browser Maker v${VERSION}"
 }
 
-# Parse command line arguments
-case "${1:-}" in
-    -h|--help)
-        show_help
-        exit 0
-        ;;
-    -v|--version)
-        show_version
-        exit 0
-        ;;
-    "")
-        # No arguments - continue with interactive mode
-        ;;
-    *)
-        echo "Error: Unknown option '$1'"
-        echo "Run '$0 --help' for usage information."
-        exit 1
-        ;;
-esac
-
-# Display welcome message
-echo "🚀 Dev Browser Maker v${VERSION}"
-echo "================================"
-echo
+# Display welcome message (only in interactive mode)
+if [[ "${1:-}" == "" ]]; then
+    echo "🚀 Dev Browser Maker v${VERSION}"
+    echo "================================"
+    echo
+fi
 
 # =============================================================================
 # UTILITY FUNCTIONS
@@ -205,6 +189,93 @@ try:
         
 except Exception as e:
     print(f"❌ Failed to register app: {e}", file=sys.stderr)
+    sys.exit(1)
+EOF
+}
+
+# Function: list_apps
+# Purpose: Display all tracked browser apps from the registry
+# Parameters: None
+# Returns: 0 on success, 1 on error
+list_apps() {
+    local registry_path
+    registry_path=$(get_registry_path)
+    
+    # Check if registry exists
+    if [[ ! -f "$registry_path" ]]; then
+        echo "📱 No browser apps found."
+        echo "   Create your first app by running: $0"
+        return 0
+    fi
+    
+    # Use Python to parse and display apps
+    python3 << EOF
+import json
+import sys
+import os
+from datetime import datetime
+
+try:
+    # Read registry
+    with open("$registry_path", "r") as f:
+        registry = json.load(f)
+    
+    apps = registry.get("apps", [])
+    
+    if not apps:
+        print("📱 No browser apps found.")
+        print("   Create your first app by running: $0")
+        sys.exit(0)
+    
+    # Header
+    print(f"📱 Found {len(apps)} browser app{'s' if len(apps) != 1 else ''}:")
+    print()
+    
+    # Display each app
+    for i, app in enumerate(apps, 1):
+        # Check if app bundle still exists
+        bundle_exists = os.path.exists(app["bundle_path"])
+        status_icon = "✅" if bundle_exists else "❌"
+        
+        # Format creation date
+        try:
+            created_date = datetime.fromisoformat(app["created_at"].replace('Z', '+00:00'))
+            formatted_date = created_date.strftime('%Y-%m-%d %H:%M')
+        except:
+            formatted_date = app["created_at"]
+        
+        # App header
+        print(f"{i}. {status_icon} {app['name']}")
+        print(f"   ID: {app['id']}")
+        print(f"   Bundle: {app['bundle_path']}")
+        print(f"   Browser: {app['browser_name']}")
+        print(f"   Profile: {app['profile_name']}")
+        print(f"   Created: {formatted_date}")
+        print(f"   Icon: {app['icon_type']}")
+        
+        # DNS Rules
+        dns_rules = app.get("dns_rules", [])
+        if dns_rules:
+            print(f"   DNS Rules ({len(dns_rules)}):")
+            for rule in dns_rules:
+                print(f"     • {rule['hostname']} → {rule['ip']}")
+        else:
+            print("   DNS Rules: none")
+        
+        if not bundle_exists:
+            print("   ⚠️  App bundle no longer exists")
+        
+        print()
+    
+    # Footer info
+    print("💡 Tips:")
+    print("   • Use the app ID to remove apps (coming soon)")
+    print("   • Apps with ❌ may have been manually deleted")
+    
+    sys.exit(0)
+    
+except Exception as e:
+    print(f"❌ Failed to list apps: {e}", file=sys.stderr)
     sys.exit(1)
 EOF
 }
@@ -439,6 +510,34 @@ suggest_profile_name() {
     # Example: "My Dev App (v2.0)" → "my-dev-app-v20"
     echo "$app_name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9 ]//g' | tr ' ' '-' | sed 's/--*/-/g' | sed 's/^-\|-$//g'
 }
+
+# =============================================================================
+# COMMAND LINE ARGUMENT PARSING  
+# =============================================================================
+
+# Parse command line arguments
+case "${1:-}" in
+    -h|--help)
+        show_help
+        exit 0
+        ;;
+    -v|--version)
+        show_version
+        exit 0
+        ;;
+    -l|--list)
+        list_apps
+        exit 0
+        ;;
+    "")
+        # No arguments - continue with interactive mode
+        ;;
+    *)
+        echo "Error: Unknown option '$1'"
+        echo "Run '$0 --help' for usage information."
+        exit 1
+        ;;
+esac
 
 # =============================================================================
 # MAIN SCRIPT EXECUTION
