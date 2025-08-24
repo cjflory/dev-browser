@@ -18,7 +18,7 @@
 set -e
 
 # Version information
-VERSION="2.1.0"
+VERSION="2.2.0"
 
 # Function to display help information
 show_help() {
@@ -576,13 +576,13 @@ suggest_profile_name() {
     
     # Transform app name into filesystem-safe profile directory name:
     # 1. tr '[:upper:]' '[:lower:]' - Convert to lowercase
-    # 2. sed 's/[^a-z0-9 ]//g' - Remove all non-alphanumeric chars except spaces  
+    # 2. sed 's/[^a-z0-9 -]//g' - Remove all non-alphanumeric chars except spaces and hyphens
     # 3. tr ' ' '-' - Replace spaces with dashes
     # 4. sed 's/--*/-/g' - Collapse multiple dashes into single dashes
     # 5. sed 's/^-\|-$//g' - Remove leading/trailing dashes
     # 
-    # Example: "My Dev App (v2.0)" → "my-dev-app-v20"
-    echo "$app_name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9 ]//g' | tr ' ' '-' | sed 's/--*/-/g' | sed 's/^-\|-$//g'
+    # Example: "My Dev-App (v2.0)" → "my-dev-app-v20"
+    echo "$app_name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9 -]//g' | tr ' ' '-' | sed 's/--*/-/g' | sed 's/^-\|-$//g'
 }
 
 # =============================================================================
