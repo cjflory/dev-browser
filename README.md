@@ -1,4 +1,4 @@
-# Dev Browser Maker
+# Dev Browser
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg)](https://www.apple.com/macos/)
@@ -37,7 +37,7 @@ This project provides `make-dev-browser.sh` - an interactive script that creates
 
 ### One-Command Install (Recommended)
 ```bash
-curl -fsSL https://raw.githubusercontent.com/cjflory/dev-browser-maker/main/dev-browser.sh | bash -s install
+curl -fsSL https://raw.githubusercontent.com/cjflory/dev-browser-maker/main/dev-browser | bash -s install
 ```
 This downloads the script and icons to `~/.local/share/dev-browser-maker/` and creates a `dev-browser` command.
 
@@ -45,8 +45,8 @@ This downloads the script and icons to `~/.local/share/dev-browser-maker/` and c
 ```bash
 git clone https://github.com/cjflory/dev-browser-maker.git
 cd dev-browser-maker
-chmod +x dev-browser.sh
-./dev-browser.sh install
+chmod +x dev-browser
+./dev-browser install
 ```
 
 ### Uninstall
@@ -55,7 +55,7 @@ dev-browser uninstall
 ```
 Or if not in PATH:
 ```bash
-~/.local/share/dev-browser-maker/dev-browser.sh uninstall
+~/.local/share/dev-browser-maker/dev-browser uninstall
 ```
 This removes the installation but keeps any browser apps you've created.
 
@@ -66,13 +66,13 @@ This removes the installation but keeps any browser apps you've created.
 1. Run the script:
    ```bash
    dev-browser create               # If installed via curl
-   ./dev-browser.sh create          # If cloned manually
+   ./dev-browser create             # If cloned manually
    ```
    
    Or simply:
    ```bash
    dev-browser                      # Defaults to create mode
-   ./dev-browser.sh                 # Defaults to create mode
+   ./dev-browser                    # Defaults to create mode
    ```
 
 2. Follow the interactive prompts:
@@ -93,13 +93,13 @@ This removes the installation but keeps any browser apps you've created.
 **List all created apps:**
 ```bash
 dev-browser list                 # If installed via curl
-./dev-browser.sh list            # If cloned manually
+./dev-browser list               # If cloned manually
 ```
 
 **Remove an app:**
 ```bash
 dev-browser remove <app-id>      # If installed via curl
-./dev-browser.sh remove <app-id> # If cloned manually
+./dev-browser remove <app-id>    # If cloned manually
 ```
 
 This shows all tracked browser apps with:
@@ -318,8 +318,8 @@ The script includes 10 unique PNG icons (`icons/icon-01.png` through `icon-10.pn
 
 ### Getting Help
 ```bash
-./dev-browser.sh help         # Show usage information
-./dev-browser.sh version       # Show version
+./dev-browser help               # Show usage information
+./dev-browser version             # Show version
 ```
 
 For issues not covered here, please check the [GitHub Issues](https://github.com/cjflory/dev-browser-maker/issues).

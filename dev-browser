@@ -623,9 +623,9 @@ install_subcommand() {
     mkdir -p "$install_dir" "$install_dir/icons" "$bin_dir"
     
     # Download main script
-    print_info "Downloading dev-browser.sh..."
-    if curl -fsSL "$RAW_URL/dev-browser.sh" -o "$install_dir/dev-browser.sh"; then
-        chmod +x "$install_dir/dev-browser.sh"
+    print_info "Downloading dev-browser..."
+    if curl -fsSL "$RAW_URL/dev-browser" -o "$install_dir/dev-browser"; then
+        chmod +x "$install_dir/dev-browser"
         print_success "Downloaded main script"
     else
         print_error "Failed to download main script"
@@ -648,7 +648,7 @@ install_subcommand() {
     print_info "Creating wrapper script..."
     cat > "$bin_dir/dev-browser" << 'EOF'
 #!/bin/bash
-exec "$HOME/.local/share/dev-browser-maker/dev-browser.sh" "$@"
+exec "$HOME/.local/share/dev-browser-maker/dev-browser" "$@"
 EOF
     chmod +x "$bin_dir/dev-browser"
     print_success "Created wrapper script"
